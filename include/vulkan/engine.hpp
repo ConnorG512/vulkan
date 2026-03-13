@@ -14,7 +14,7 @@ namespace Vulkan
     VkCommandBuffer main_command_buffer;
   };
 
-  constexpr unsigned int FRAME_OVERLAP = 2;
+  constexpr std::uint32_t FRAME_OVERLAP = 2;
 
   class Engine 
   {
@@ -31,6 +31,8 @@ namespace Vulkan
       std::vector<VkImage> swapchainImages {};
       std::vector<VkImageView> swapchainImageViews {};
       VkExtent2D swapchain_extent;
+      
+      Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
 
       std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, nullptr};
 
