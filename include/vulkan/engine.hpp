@@ -13,7 +13,7 @@ namespace Vulkan
       VkDebugUtilsMessengerEXT debug_messenger;
       VkPhysicalDevice chosen_gpu;
       VkDevice device;
-      VkSurfaceKHR suface;
+      VkSurfaceKHR surface;
 
       std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, nullptr};
 
