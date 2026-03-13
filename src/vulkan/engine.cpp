@@ -1,15 +1,17 @@
 #include "vulkan/engine.hpp"
 #include "VkBootstrap.h"
 #include "vulkan/initializer.hpp"
+#include "vulkan/util.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_vulkan.h>
+#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <format>
-#include <mutex>
 #include <print>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
@@ -191,4 +193,15 @@ auto Vulkan::Engine::draw() -> void
   VK_CHECK(vkResetCommandBuffer(cmd, 0));
   VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
   VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+
+  VkClearColorValue clearValue;
+  auto flash {std::abs(std::sin(frame_number / 120.f))};
+  clearValue = {{0.0f, 0.0f, flash, 1.0f}};
+
+  VkImageSubresourceRange clearRange {Vulkan::Util::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT)};
+  vkCmdClearColorImage(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+  VK_CHECK(vkEndCommandBuffer(cmd));
 }
