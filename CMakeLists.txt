@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
+  src/vulkan/engine.cpp
 )
 
 find_package(Vulkan REQUIRED)
