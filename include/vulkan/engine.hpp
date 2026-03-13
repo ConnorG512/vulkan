@@ -33,6 +33,7 @@ namespace Vulkan
       auto init_swapchain() -> void;
       auto init_commands() -> void;
       auto init_sync_structures() -> void;
+      auto cleanup() -> void;
 
     private:
       auto create_swapchain(uint32_t width, uint32_t height) -> void;

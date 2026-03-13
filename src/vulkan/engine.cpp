@@ -7,6 +7,7 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_vulkan.h>
 #include <format>
+#include <print>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -107,4 +108,19 @@ auto Vulkan::Engine::destroy_swapchain() -> void
   vkDestroySwapchainKHR(device, swapchain, nullptr);
   for (auto& image_view : swapchainImageViews)
     vkDestroyImageView(device, image_view, nullptr);
+}
+
+auto Vulkan::Engine::cleanup() -> void
+{
+  if(is_initialised)
+  {
+    destroy_swapchain();
+    vkDestroySurfaceKHR(instance, surface, nullptr);
+    vkDestroyDevice(device, nullptr);
+
+    vkb::destroy_debug_utils_messenger(instance, debug_messenger);
+    vkDestroyInstance(instance, nullptr);
+  }
+  else 
+    std::println("Vulkan is not initialised for cleanup!");
 }
