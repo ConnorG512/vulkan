@@ -39,6 +39,10 @@
         pkgs.sdl3
       ];
       VULKAN_SDK = "${pkgs.vulkan-headers}";
+      VULKAN_LIBRARY = "${pkgs.vulkan-loader.out}/lib/libvulkan.so";
+
+      # find_package can use this var to find libraries.
+      CMAKE_PREFIX_PATH = "${pkgs.vulkan-loader.out}";
 
       shellHook = ''
         echo "Entering shell!"
