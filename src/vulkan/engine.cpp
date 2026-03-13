@@ -7,7 +7,9 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_vulkan.h>
+#include <cstdint>
 #include <format>
+#include <mutex>
 #include <print>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
@@ -172,4 +174,16 @@ auto Vulkan::Engine::cleanup() -> void
   }
   else 
     std::println("Vulkan is not initialised for cleanup!");
+}
+
+auto Vulkan::Engine::draw() -> void
+{
+  constexpr auto FENCE_COUNT {1};
+  constexpr auto ONE_SECOND {1000000000};
+
+  VK_CHECK(vkWaitForFences(device, FENCE_COUNT, &get_current_frame().render_fence, true, ONE_SECOND));
+  VK_CHECK(vkResetFences(device, FENCE_COUNT, &get_current_frame().render_fence));
+
+  uint32_t swapchainImageIndex {};
+  VK_CHECK(vkAcquireNextImageKHR(device, swapchain, ONE_SECOND, get_current_frame().swapchain_semaphore, nullptr, &swapchainImageIndex));
 }
