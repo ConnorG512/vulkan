@@ -13,6 +13,7 @@ find_package(vk-bootstrap REQUIRED)
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
   src/vulkan/engine.cpp
+  src/vulkan/initializer.cpp
 )
 
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE
