@@ -15,7 +15,11 @@
         pkgs.clang-tools
         pkgs.cmake
         pkgs.ninja
+        
+        # Vulkan:
         pkgs.vulkan-headers
+        pkgs.vk-bootstrap
+        pkgs.vulkan-memory-allocator
       ];
 
       shellHook = ''
