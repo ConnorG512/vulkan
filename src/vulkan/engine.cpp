@@ -186,4 +186,9 @@ auto Vulkan::Engine::draw() -> void
 
   uint32_t swapchainImageIndex {};
   VK_CHECK(vkAcquireNextImageKHR(device, swapchain, ONE_SECOND, get_current_frame().swapchain_semaphore, nullptr, &swapchainImageIndex));
+
+  VkCommandBuffer cmd {get_current_frame().main_command_buffer};
+  VK_CHECK(vkResetCommandBuffer(cmd, 0));
+  VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
+  VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 }
