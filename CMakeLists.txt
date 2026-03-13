@@ -10,6 +10,13 @@ add_executable(${EXECUTABLE_NAME}
   src/main.cpp
 )
 
+find_package(Vulkan REQUIRED)
+
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE
+  # Libraries:
+  Vulkan::Vulkan
+)
+
 target_include_directories(${EXECUTABLE_NAME} PRIVATE 
   "${CMAKE_SOURCE_DIR}/include"
 )
