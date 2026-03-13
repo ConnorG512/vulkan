@@ -72,6 +72,9 @@ auto Vulkan::Engine::init_vulkan() -> void
 
     device = vkbDevice.device;
     chosen_gpu = physicalDevice.physical_device;
+
+    graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+    graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 
 auto Vulkan::Engine::init_swapchain() -> void 
