@@ -32,6 +32,7 @@ namespace Vulkan
       std::vector<VkImageView> swapchainImageViews {};
       VkExtent2D swapchain_extent;
       
+      std::uint32_t frame_number;
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
       auto get_current_frame() -> FrameData&
       {
