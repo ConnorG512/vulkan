@@ -150,6 +150,10 @@ auto Vulkan::Engine::cleanup() -> void
 {
   if(is_initialised)
   {
+    vkDeviceWaitIdle(device);
+    for(int index = 0; index < FRAME_OVERLAP; index++)
+      vkDestroyCommandPool(device, frames[index].command_pool, nullptr);
+
     destroy_swapchain();
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(device, nullptr);
