@@ -1,6 +1,17 @@
 #include "vulkan/util.hpp"
 #include <vulkan/vulkan_core.h>
 
+auto image_subresource_range(VkImageAspectFlags aspect_mask) -> VkImageSubresourceRange
+{
+  return VkImageSubresourceRange {
+    .aspectMask = aspect_mask,
+    .baseMipLevel = 0,
+    .levelCount = VK_REMAINING_MIP_LEVELS,
+    .baseArrayLayer = 0,
+    .layerCount = VK_REMAINING_MIP_LEVELS,
+  };
+}
+
 auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout current_layout, VkImageLayout new_layout) -> void 
 {
   VkImageAspectFlags aspect_mask {(new_layout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT};
@@ -16,8 +27,8 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
     .oldLayout = current_layout,
     .newLayout = new_layout,
     
-    .subresourceRange = image_subresource_range(aspect_mask),
     .image = image,
+    .subresourceRange = image_subresource_range(aspect_mask),
   };
 
   VkDependencyInfo dep_info {
