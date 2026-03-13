@@ -15,6 +15,7 @@
         pkgs.clang-tools
         pkgs.cmake
         pkgs.ninja
+        pkgs.pkg-config
         
         # Vulkan:
         pkgs.vulkan-headers
@@ -28,6 +29,16 @@
         pkgs.gef
         pkgs.strace
       ];
+      
+      # Set environment variables:
+      LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+        #pkgs.xorg.libX11
+        #pkgs.xorg.libXcursor
+        pkgs.mesa
+        pkgs.vulkan-loader
+        pkgs.sdl3
+      ];
+      VULKAN_SDK = "${pkgs.vulkan-headers}";
 
       shellHook = ''
         echo "Entering shell!"
