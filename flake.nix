@@ -38,6 +38,8 @@
         pkgs.cmake
         pkgs.ninja
         pkgs.vulkan-headers
+        pkgs.vk-bootstrap
+        pkgs.vulkan-memory-allocator
       ];
       buildInputs = [
         pkgs.vulkan-loader
