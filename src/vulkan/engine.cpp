@@ -104,5 +104,7 @@ auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
 
 auto Vulkan::Engine::destroy_swapchain() -> void
 {
-
+  vkDestroySwapchainKHR(device, swapchain, nullptr);
+  for (auto& image_view : swapchainImageViews)
+    vkDestroyImageView(device, image_view, nullptr);
 }
