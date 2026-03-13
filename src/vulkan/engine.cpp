@@ -54,6 +54,10 @@ auto Vulkan::Engine::init_vulkan() -> void
     features.dynamicRendering = true;
     features.synchronization2 = true;
 
+    VkPhysicalDeviceVulkan12Features features12 { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+    features12.bufferDeviceAddress = true;
+    features12.descriptorIndexing = true;
+
     vkb::PhysicalDeviceSelector selector {vkb_inst};
     vkb::PhysicalDevice physicalDevice = selector
       .set_minimum_version(1,3)
