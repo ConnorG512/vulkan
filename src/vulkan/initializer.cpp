@@ -6,23 +6,20 @@
 
 auto Vulkan::fence_create_info(VkFenceCreateFlags flags) -> VkFenceCreateInfo
 {
-  VkFenceCreateInfo info {
+  return VkFenceCreateInfo {
     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
     .pNext = nullptr,
     .flags = flags,
   };
-
-  return info;
 }
 
 auto Vulkan::semaphore_create_info(VkSemaphoreCreateFlags flags) -> VkSemaphoreCreateInfo
 {
-  VkSemaphoreCreateInfo info {
+  return VkSemaphoreCreateInfo {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     .pNext = nullptr,
     .flags = flags,
   };
-  return info;
 }
 
 auto Vulkan::semaphore_submit_info(VkPipelineStageFlags2 stage_mask, VkSemaphore semaphore) -> VkSemaphoreSubmitInfo
@@ -39,14 +36,13 @@ auto Vulkan::semaphore_submit_info(VkPipelineStageFlags2 stage_mask, VkSemaphore
 
 auto Vulkan::command_buffer_begin_info(VkCommandBufferUsageFlags flags) -> VkCommandBufferBeginInfo
 {
-  VkCommandBufferBeginInfo info = 
+  return VkCommandBufferBeginInfo  
   {
     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
     .pNext = nullptr,
     .flags = flags,
     .pInheritanceInfo = nullptr,
   };
-  return info;
 }
 
 auto Vulkan::command_buffer_submit_info(VkCommandBuffer cmd) -> VkCommandBufferSubmitInfo
