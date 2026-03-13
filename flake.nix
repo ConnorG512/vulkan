@@ -20,6 +20,13 @@
         pkgs.vulkan-headers
         pkgs.vk-bootstrap
         pkgs.vulkan-memory-allocator
+        
+        # SDL:
+        pkgs.sdl3.dev
+        
+        # Debugging tools:
+        pkgs.gef
+        pkgs.strace
       ];
 
       shellHook = ''
@@ -27,22 +34,31 @@
       '';
     };
 
-    build = pkgs.stdenv.mkDerivation (finalAttrs: {
+    debug = pkgs.stdenv.mkDerivation (finalAttrs: {
       pname = "build";
       version = "debug";
       src = ./.;
 
       dontStrip = true;
 
+      cmakeFlags = [
+        "-DCMAKE_BUILD_TYPE=Debug"
+      ];
+
       nativeBuildInputs = [ 
         pkgs.cmake
         pkgs.ninja
+        #pkgs.makeWrapper
+
+        # Vulkan:
         pkgs.vulkan-headers
         pkgs.vk-bootstrap
         pkgs.vulkan-memory-allocator
       ];
       buildInputs = [
         pkgs.vulkan-loader
+        pkgs.sdl3
+        pkgs.mesa
       ];
     });
   };
