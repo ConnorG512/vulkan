@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Vulkan CXX)
 
-set(EXECUTABLE_NAME vulkan)
+set(EXECUTABLE_NAME vulkan-app)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

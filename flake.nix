@@ -50,7 +50,7 @@
     };
 
     debug = pkgs.stdenv.mkDerivation (finalAttrs: {
-      pname = "build";
+      pname = "vulkan-app";
       version = "debug";
       src = ./.;
 
