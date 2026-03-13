@@ -22,5 +22,22 @@
         echo "Entering shell!"
       '';
     };
+
+    build = pkgs.stdenv.mkDerivation (finalAttrs: {
+      pname = "build";
+      version = "debug";
+      src = ./.;
+
+      dontStrip = true;
+
+      nativeBuildInputs = [ 
+        pkgs.cmake
+        pkgs.ninja
+        pkgs.vulkan-headers
+      ];
+      buildInputs = [
+        pkgs.vulkan-loader
+      ];
+    });
   };
 }
