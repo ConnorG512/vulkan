@@ -14,6 +14,6 @@ namespace Vulkan
   };
   constexpr std::uint32_t FRAME_OVERLAP = 2;
 
-  auto fence_create_info(VkFenceCreateFlags flags) -> VkFenceCreateInfo;
-  auto semaphore_create_info(VkSemaphoreCreateFlags flags) -> VkSemaphoreCreateInfo;
+  auto fence_create_info(VkFenceCreateFlags flags = 0) -> VkFenceCreateInfo;
+  auto semaphore_create_info(VkSemaphoreCreateFlags flags = 0) -> VkSemaphoreCreateInfo;
 }
