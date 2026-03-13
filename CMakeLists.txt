@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED)
+find_package(vk-bootstrap REQUIRED)
 
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
@@ -18,6 +19,7 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE
   # Libraries:
   Vulkan::Vulkan
   SDL3::SDL3
+  vk-bootstrap::vk-bootstrap
 )
 
 target_include_directories(${EXECUTABLE_NAME} PRIVATE 
