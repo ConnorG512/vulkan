@@ -55,14 +55,14 @@ auto Vulkan::Engine::init_vulkan() -> void
     features.synchronization2 = true;
 
     vkb::PhysicalDeviceSelector selector {vkb_inst};
-    vkb::VkPhysicalDevice physicalDevice = selector
+    vkb::PhysicalDevice physicalDevice = selector
       .set_minimum_version(1,3)
       .set_required_features_13(features)
       .set_required_features_12(features12)
       .set_surface(surface)
       .select()
       .value();
-
+  
     vkb::DeviceBuilder deviceBuilder{physicalDevice};
     vkb::Device vkbDevice = deviceBuilder.build().value();
 
