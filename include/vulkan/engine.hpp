@@ -8,6 +8,14 @@
 
 namespace Vulkan 
 {
+  struct FrameData 
+  {
+    VkCommandPool command_pool;
+    VkCommandBuffer main_command_buffer;
+  };
+
+  constexpr unsigned int FRAME_OVERLAP = 2;
+
   class Engine 
   {
     public:
