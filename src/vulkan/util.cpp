@@ -3,6 +3,8 @@
 
 auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout current_layout, VkImageLayout new_layout) -> void 
 {
+  VkImageAspectFlags aspect_mask {(new_layout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT};
+  
   VkImageMemoryBarrier2 image_barrier {
     .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
     .pNext = nullptr,
@@ -13,11 +15,10 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
 
     .oldLayout = current_layout,
     .newLayout = new_layout,
-
+    
+    .subresourceRange = image_subresource_range(aspect_mask),
     .image = image,
   };
-
-  VkImageAspectFlags aspect_mask {(new_layout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT};
 
   VkDependencyInfo dep_info {
     .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
