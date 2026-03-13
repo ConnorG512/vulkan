@@ -33,6 +33,12 @@ namespace Vulkan
       VkExtent2D swapchain_extent;
       
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
+      auto get_current_frame() -> FrameData&
+      {
+        return frames[frame_number % FRAME_OVERLAP];
+      }
+      VkQueue graphics_queue;
+      std::uint32_t graphics_queue_family;
 
       std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, nullptr};
 
