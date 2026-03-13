@@ -11,6 +11,17 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
+#define VK_CHECK(x)                                                                     \
+	do                                                                              \
+	{                                                                               \
+		VkResult err = x;                                                       \
+		if (err)                                                                \
+		{                                                                       \
+                  std::println(stderr, "VK_CHECK Error: {}", static_cast<int>(err));    \
+			abort();                                                        \
+		}                                                                       \
+	} while (0)
+
 constexpr bool use_validation_layers {false};
 
 auto Vulkan::Engine::init() -> void 
@@ -84,7 +95,25 @@ auto Vulkan::Engine::init_swapchain() -> void
 
 auto Vulkan::Engine::init_commands() -> void 
 {
-
+  VkCommandPoolCreateInfo commandPoolInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+    .pNext = nullptr,
+    .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+    .queueFamilyIndex = graphics_queue_family
+  };
+  
+  for(int index = 0; index < FRAME_OVERLAP; index++)
+  {
+    VK_CHECK(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &frames[index].command_pool));
+    VkCommandBufferAllocateInfo cmdAllocInfo {
+      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .commandPool = frames[index].command_pool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+    VK_CHECK(vkAllocateCommandBuffers(device, &cmdAllocInfo, &frames[index].main_command_buffer));
+  }
 }
 
 auto Vulkan::Engine::init_sync_structures() -> void 
