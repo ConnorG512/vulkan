@@ -6,13 +6,13 @@ set(EXECUTABLE_NAME vulkan)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(Vulkan REQUIRED)
+find_package(SDL3 REQUIRED)
+
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
   src/vulkan/engine.cpp
 )
-
-find_package(Vulkan REQUIRED)
-find_package(SDL3 REQUIRED)
 
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE
   # Libraries:
