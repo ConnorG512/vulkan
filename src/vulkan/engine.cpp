@@ -1,4 +1,5 @@
 #include "vulkan/engine.hpp"
+#include "VkBootstrap.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
@@ -79,6 +80,29 @@ auto Vulkan::Engine::init_commands() -> void
 }
 
 auto Vulkan::Engine::init_sync_structures() -> void 
+{
+
+}
+
+auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
+{
+  vkb::SwapchainBuilder swapchainBuilder{chosen_gpu, device, surface};
+  swapchain_image_format = VK_FORMAT_B8G8R8_UNORM;
+  vkb::Swapchain vkbSwapchain = swapchainBuilder 
+    .set_desired_format(VkSurfaceFormatKHR{.format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR})
+    .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+    .set_desired_extent(width, height)
+    .add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+    .build()
+    .value();
+
+  swapchain_extent = vkbSwapchain.extent;
+  swapchain = vkbSwapchain.swapchain;
+  swapchainImages = vkbSwapchain.get_images().value();
+  swapchainImageViews = vkbSwapchain.get_image_views().value();
+}
+
+auto Vulkan::Engine::destroy_swapchain() -> void
 {
 
 }

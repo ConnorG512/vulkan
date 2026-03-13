@@ -1,8 +1,10 @@
 #pragma once 
 
+#include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 #include <SDL3/SDL_video.h>
+#include <vector>
 
 namespace Vulkan 
 {
@@ -15,6 +17,13 @@ namespace Vulkan
       VkDevice device;
       VkSurfaceKHR surface;
 
+      VkSwapchainKHR swapchain;
+      VkFormat swapchain_image_format;
+
+      std::vector<VkImage> swapchainImages {};
+      std::vector<VkImageView> swapchainImageViews {};
+      VkExtent2D swapchain_extent;
+
       std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, nullptr};
 
       bool is_initialised = false;
@@ -24,5 +33,9 @@ namespace Vulkan
       auto init_swapchain() -> void;
       auto init_commands() -> void;
       auto init_sync_structures() -> void;
+
+    private:
+      auto create_swapchain(uint32_t width, uint32_t height) -> void;
+      auto destroy_swapchain() -> void;
   };
 }
