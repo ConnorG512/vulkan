@@ -1,5 +1,6 @@
 #include "vulkan/engine.hpp"
 #include "VkBootstrap.h"
+#include "vulkan/initializer.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_error.h>
@@ -118,7 +119,15 @@ auto Vulkan::Engine::init_commands() -> void
 
 auto Vulkan::Engine::init_sync_structures() -> void 
 {
+  VkFenceCreateInfo fence_create_info {Vulkan::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT)};
+  VkSemaphoreCreateInfo semaphore_create_info {Vulkan::semaphore_create_info()};
 
+  for(auto& frame : frames)
+  {
+    VK_CHECK(vkCreateFence(device, &fence_create_info, nullptr, &frame.render_fence));
+    VK_CHECK(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore));
+    VK_CHECK(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.render_semaphore));
+  }
 }
 
 auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
