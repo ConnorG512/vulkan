@@ -1,5 +1,7 @@
 #pragma once 
 
+#include "vulkan/initializer.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_core.h>
@@ -8,13 +10,7 @@
 
 namespace Vulkan 
 {
-  struct FrameData 
-  {
-    VkCommandPool command_pool;
-    VkCommandBuffer main_command_buffer;
-  };
 
-  constexpr std::uint32_t FRAME_OVERLAP = 2;
 
   class Engine 
   {
