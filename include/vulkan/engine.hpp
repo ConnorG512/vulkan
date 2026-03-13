@@ -10,8 +10,6 @@
 
 namespace Vulkan 
 {
-
-
   class Engine 
   {
     public:
