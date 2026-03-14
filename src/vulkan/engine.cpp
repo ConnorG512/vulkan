@@ -173,6 +173,14 @@ auto Vulkan::Engine::cleanup() -> void
 
     vkb::destroy_debug_utils_messenger(instance, debug_messenger);
     vkDestroyInstance(instance, nullptr);
+
+    for(auto& frame : frames)
+    {
+      vkDestroyCommandPool(device, frame.command_pool, nullptr);
+      vkDestroyFence(device, frame.render_fence, nullptr);
+      vkDestroySemaphore(device, frame.render_semaphore, nullptr);
+      vkDestroySemaphore(device, frame.swapchain_semaphore, nullptr);
+    }
   }
   else 
     std::println("Vulkan is not initialised for cleanup!");
