@@ -27,7 +27,7 @@
 		}                                                                       \
 	} while (0)
 
-constexpr bool use_validation_layers {false};
+constexpr bool use_validation_layers {true};
 
 auto Vulkan::Engine::init() -> void 
 {
