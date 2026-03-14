@@ -10,14 +10,16 @@ namespace Window {
 class Instance {
 private:
   std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window_{
-      SDL_CreateWindow("Vulkan Example", 1280, 720, SDL_WINDOW_VULKAN),
+      SDL_CreateWindow("App Window", 1280, 720, SDL_WINDOW_VULKAN),
       &SDL_DestroyWindow};
 
 public:
-  Instance(std::string_view window_title = "App Window", std::pair<int,int> wh = {1280,720});
+  Instance(std::string_view window_title = "App Window",
+           std::pair<int, int> wh = {1280, 720});
 
-  auto get_current_size() const noexcept -> std::expected<std::pair<int, int>, std::string>;
-  auto ref() noexcept -> SDL_Window&;
-  auto const_ref() const noexcept -> const SDL_Window&;
+  auto get_current_size() const noexcept
+      -> std::expected<std::pair<int, int>, std::string>;
+  auto ref() noexcept -> SDL_Window &;
+  auto const_ref() const noexcept -> const SDL_Window &;
 };
 } // namespace Window
