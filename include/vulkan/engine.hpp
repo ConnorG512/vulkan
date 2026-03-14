@@ -2,6 +2,7 @@
 
 #include "vulkan/initializer.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_core.h>
@@ -26,7 +27,7 @@ namespace Vulkan
       std::vector<VkImageView> swapchainImageViews {};
       VkExtent2D swapchain_extent;
       
-      std::uint32_t frame_number;
+      std::uint32_t frame_number {0};
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
       auto get_current_frame() -> FrameData&
       {
