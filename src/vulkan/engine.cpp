@@ -46,6 +46,7 @@ auto Vulkan::Engine::init() -> void
   init_sync_structures();
 
   is_initialised = true;
+  std::println("Initialise complete!");
 }
 
 auto Vulkan::Engine::init_vulkan() -> void 
@@ -98,7 +99,7 @@ auto Vulkan::Engine::init_vulkan() -> void
 
 auto Vulkan::Engine::init_swapchain() -> void 
 {
-
+  create_swapchain(1280, 720);
 }
 
 auto Vulkan::Engine::init_commands() -> void 
