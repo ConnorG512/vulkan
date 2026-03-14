@@ -5,8 +5,11 @@
 #include <cassert>
 #include <format>
 
-Window::Instance::Instance(std::string_view window_title, std::pair<int,int> wh)
-  : window_{SDL_CreateWindow(window_title.data(), wh.first, wh.second, SDL_WINDOW_VULKAN), &SDL_DestroyWindow} {}
+Window::Instance::Instance(std::string_view window_title,
+                           std::pair<int, int> wh)
+    : window_{SDL_CreateWindow(window_title.data(), wh.first, wh.second,
+                               SDL_WINDOW_VULKAN),
+              &SDL_DestroyWindow} {}
 
 auto Window::Instance::get_current_size() const noexcept
     -> std::expected<std::pair<int, int>, std::string> {
@@ -21,14 +24,12 @@ auto Window::Instance::get_current_size() const noexcept
   return std::expected<std::pair<int, int>, std::string>{{x, y}};
 }
 
-auto Window::Instance::ref() noexcept -> SDL_Window&
-{
+auto Window::Instance::ref() noexcept -> SDL_Window & {
   assert(window_ != nullptr);
   return *window_;
 }
 
-auto Window::Instance::const_ref() const noexcept -> const SDL_Window&
-{
+auto Window::Instance::const_ref() const noexcept -> const SDL_Window & {
   assert(window_ != nullptr);
   return *window_;
 }
