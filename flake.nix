@@ -24,6 +24,8 @@
         
         # SDL:
         pkgs.sdl3.dev
+
+        pkgs.imgui
         
         # Debugging tools:
         pkgs.gef
@@ -42,7 +44,7 @@
       VULKAN_LIBRARY = "${pkgs.vulkan-loader.out}/lib/libvulkan.so";
 
       # find_package can use this var to find libraries.
-      CMAKE_PREFIX_PATH = "${pkgs.vulkan-loader.out}";
+      CMAKE_PREFIX_PATH = "${pkgs.vulkan-loader.out};${pkgs.imgui.out}";
 
       shellHook = ''
         echo "Entering shell!"
@@ -64,6 +66,8 @@
         pkgs.cmake
         pkgs.ninja
         pkgs.makeWrapper
+        
+        pkgs.imgui
 
         # Vulkan:
         pkgs.vulkan-headers
@@ -74,6 +78,7 @@
         pkgs.vulkan-loader
         pkgs.sdl3
         pkgs.mesa
+        pkgs.imgui
       ];
 
       postFixup = 
