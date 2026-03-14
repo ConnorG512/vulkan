@@ -36,7 +36,7 @@ namespace Vulkan
       VkQueue graphics_queue;
       std::uint32_t graphics_queue_family;
 
-      std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, nullptr};
+      std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, &SDL_DestroyWindow};
 
       bool is_initialised = false;
 
