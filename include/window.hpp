@@ -14,8 +14,8 @@ private:
       &SDL_DestroyWindow};
 
 public:
-  Instance(std::string_view window_title = "App Window",
-           std::pair<int, int> wh = {1280, 720});
+  Instance(std::string_view window_title, std::pair<int, int> wh);
+  Instance() = default;
 
   auto get_current_size() const noexcept
       -> std::expected<std::pair<int, int>, std::string>;
