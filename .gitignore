@@ -6,3 +6,4 @@
 # Files:
 compile_commands.json
 result
+/vulkan-crash.core
