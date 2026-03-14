@@ -17,9 +17,9 @@ public:
   Instance(std::string_view window_title, std::pair<int, int> wh);
   Instance() = default;
 
-  auto get_current_size() const noexcept
+  [[nodiscard]] auto get_current_size() const noexcept
       -> std::expected<std::pair<int, int>, std::string>;
-  auto ref() noexcept -> SDL_Window &;
-  auto const_ref() const noexcept -> const SDL_Window &;
+  [[nodiscard]] auto ref() noexcept -> SDL_Window &;
+  [[nodiscard]] auto const_ref() const noexcept -> const SDL_Window &;
 };
 } // namespace Window

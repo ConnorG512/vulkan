@@ -11,7 +11,7 @@ Window::Instance::Instance(std::string_view window_title,
                                SDL_WINDOW_VULKAN),
               &SDL_DestroyWindow} {}
 
-auto Window::Instance::get_current_size() const noexcept
+[[nodiscard]] auto Window::Instance::get_current_size() const noexcept
     -> std::expected<std::pair<int, int>, std::string> {
 
   std::int32_t x{};
@@ -24,12 +24,13 @@ auto Window::Instance::get_current_size() const noexcept
   return std::expected<std::pair<int, int>, std::string>{{x, y}};
 }
 
-auto Window::Instance::ref() noexcept -> SDL_Window & {
+[[nodiscard]] auto Window::Instance::ref() noexcept -> SDL_Window & {
   assert(window_ != nullptr);
   return *window_;
 }
 
-auto Window::Instance::const_ref() const noexcept -> const SDL_Window & {
+[[nodiscard]] auto Window::Instance::const_ref() const noexcept
+    -> const SDL_Window & {
   assert(window_ != nullptr);
   return *window_;
 }
