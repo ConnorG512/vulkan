@@ -63,7 +63,7 @@
       nativeBuildInputs = [ 
         pkgs.cmake
         pkgs.ninja
-        #pkgs.makeWrapper
+        pkgs.makeWrapper
 
         # Vulkan:
         pkgs.vulkan-headers
@@ -75,6 +75,18 @@
         pkgs.sdl3
         pkgs.mesa
       ];
+
+      postFixup = 
+      let
+        libs = with pkgs; [
+          libGL.out
+          mesa
+        ];
+      in
+      ''
+        wrapProgram $out/bin/vulkan-app \
+          --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs}
+      '';
     });
   };
 }
