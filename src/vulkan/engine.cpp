@@ -204,4 +204,22 @@ auto Vulkan::Engine::draw() -> void
   vkCmdClearColorImage(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
   Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
   VK_CHECK(vkEndCommandBuffer(cmd));
+
+  VkCommandBufferSubmitInfo cmdinfo {Vulkan::command_buffer_submit_info(cmd)};
+  VkSemaphoreSubmitInfo waitinfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, get_current_frame().swapchain_semaphore)};
+  VkSemaphoreSubmitInfo signalinfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame().render_semaphore)};
+  VkSubmitInfo2 submit{Vulkan::submit_info(&cmdinfo, &signalinfo, &waitinfo)};
+  VK_CHECK(vkQueueSubmit2(graphics_queue, 1, &submit, get_current_frame().render_fence));
+
+  VkPresentInfoKHR presentInfo 
+  {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .pNext = nullptr,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &get_current_frame().render_semaphore,
+    .swapchainCount = 1,
+    .pSwapchains = &swapchain,
+    .pImageIndices = &swapchainImageIndex,
+  };
+  VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
 }
