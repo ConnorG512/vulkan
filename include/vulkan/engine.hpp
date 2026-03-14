@@ -4,10 +4,12 @@
 
 #include <cassert>
 #include <cstdint>
-#include <memory>
 #include <vulkan/vulkan_core.h>
-#include <SDL3/SDL_video.h>
 #include <vector>
+
+namespace Window {
+  class Instance;
+}
 
 namespace Vulkan 
 {
@@ -36,12 +38,10 @@ namespace Vulkan
       VkQueue graphics_queue;
       std::uint32_t graphics_queue_family;
 
-      std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window {nullptr, &SDL_DestroyWindow};
-
       bool is_initialised = false;
 
-      auto init() -> void;
-      auto init_vulkan() -> void;
+      auto init(Window::Instance& application_window) -> void;
+      auto init_vulkan(Window::Instance& application_window) -> void;
       auto init_swapchain() -> void;
       auto init_commands() -> void;
       auto init_sync_structures() -> void;
