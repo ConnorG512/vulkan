@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vulkan/vulkan_core.h>
 
 namespace Window {
 class Instance {
@@ -19,7 +20,8 @@ public:
 
   [[nodiscard]] auto get_current_size() const noexcept
       -> std::expected<std::pair<int, int>, std::string>;
-  [[nodiscard]] auto ref() noexcept -> SDL_Window &;
-  [[nodiscard]] auto const_ref() const noexcept -> const SDL_Window &;
+  [[nodiscard]] auto create_vulkan_surface(VkInstance vk_instance,
+                                           VkSurfaceKHR *vk_surface)
+      -> std::expected<void, std::string>;
 };
 } // namespace Window
