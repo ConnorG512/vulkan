@@ -14,6 +14,8 @@ private:
       &SDL_DestroyWindow};
 
 public:
-  auto getCurrentSize() const noexcept -> std::expected<std::pair<int, int>, std::string>;
+  auto get_current_size() const noexcept -> std::expected<std::pair<int, int>, std::string>;
+  auto ref() noexcept -> SDL_Window&;
+  auto const_ref() const noexcept -> const SDL_Window&;
 };
 } // namespace Window

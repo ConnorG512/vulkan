@@ -2,9 +2,10 @@
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_video.h>
+#include <cassert>
 #include <format>
 
-auto Window::Instance::getCurrentSize() const noexcept
+auto Window::Instance::get_current_size() const noexcept
     -> std::expected<std::pair<int, int>, std::string> {
 
   std::int32_t x{};
@@ -15,4 +16,16 @@ auto Window::Instance::getCurrentSize() const noexcept
         std::format("Failed SDL_GetWindowSize, Error [{}]", SDL_GetError()));
 
   return std::expected<std::pair<int, int>, std::string>{{x, y}};
+}
+
+auto Window::Instance::ref() noexcept -> SDL_Window&
+{
+  assert(window_ != nullptr);
+  return *window_;
+}
+
+auto Window::Instance::const_ref() const noexcept -> const SDL_Window&
+{
+  assert(window_ != nullptr);
+  return *window_;
 }
