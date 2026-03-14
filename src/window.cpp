@@ -5,6 +5,9 @@
 #include <cassert>
 #include <format>
 
+Window::Instance::Instance(std::string_view window_title, std::pair<int,int> wh)
+  : window_{SDL_CreateWindow(window_title.data(), wh.first, wh.second, SDL_WINDOW_VULKAN), &SDL_DestroyWindow} {}
+
 auto Window::Instance::get_current_size() const noexcept
     -> std::expected<std::pair<int, int>, std::string> {
 
