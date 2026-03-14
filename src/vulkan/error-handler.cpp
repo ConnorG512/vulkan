@@ -1,5 +1,7 @@
 #include "vulkan/error-handler.hpp"
+
 #include <vulkan/vulkan_core.h>
+#include <format>
 
 [[nodiscard]] auto Vulkan::Error::get_vk_error(VkResult vk_result) noexcept
     -> std::string_view {
@@ -42,5 +44,15 @@
     return "VK_ERROR_FRAGMENTED_POOL";
   case VK_ERROR_UNKNOWN:
     return "VK_ERROR_UNKNOWN";
+  }
+}
+
+[[nodiscard]] auto Vulkan::Error::vk_check(VkResult vk_result) -> std::expected<void, std::string>
+{
+  if (vk_result == VK_SUCCESS)
+    return {};
+  else {
+    return std::unexpected(
+        std::format("VK_ERROR: [{}].", get_vk_error(vk_result)));
   }
 }
