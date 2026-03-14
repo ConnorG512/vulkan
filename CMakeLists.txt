@@ -16,6 +16,7 @@ add_executable(${EXECUTABLE_NAME}
   src/vulkan/engine.cpp
   src/vulkan/initializer.cpp
   src/vulkan/util.cpp
+  src/vulkan/error-handler.cpp
   src/window.cpp
 )
 
