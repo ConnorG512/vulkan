@@ -1,7 +1,7 @@
 #include "vulkan/util.hpp"
 #include <vulkan/vulkan_core.h>
 
-auto image_subresource_range(VkImageAspectFlags aspect_mask) -> VkImageSubresourceRange
+auto Vulkan::Util::image_subresource_range(VkImageAspectFlags aspect_mask) -> VkImageSubresourceRange
 {
   return VkImageSubresourceRange {
     .aspectMask = aspect_mask,
