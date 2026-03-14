@@ -58,39 +58,42 @@ auto Vulkan::Engine::init_vulkan() -> void
     .require_api_version(1,3,0)
     .build();
 
-    vkb::Instance vkb_inst = inst_ret.value();
+  if(!inst_ret.has_value())
+    throw std::runtime_error(std::format("Failed to initialise Vulkan! Error: [{}]", inst_ret.error().message()));
 
-    instance = vkb_inst.instance;
-    debug_messenger = vkb_inst.debug_messenger;
+  vkb::Instance vkb_inst = inst_ret.value();
 
-    if(!SDL_Vulkan_CreateSurface(window.get(), instance, nullptr, &surface))
-      throw std::runtime_error(std::format("Failed to create Vulkan surface. [{}],", SDL_GetError()));
+  instance = vkb_inst.instance;
+  debug_messenger = vkb_inst.debug_messenger;
 
-    VkPhysicalDeviceVulkan13Features features { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
-    features.dynamicRendering = true;
-    features.synchronization2 = true;
+  if(!SDL_Vulkan_CreateSurface(window.get(), instance, nullptr, &surface))
+    throw std::runtime_error(std::format("Failed to create Vulkan surface. [{}],", SDL_GetError()));
 
-    VkPhysicalDeviceVulkan12Features features12 { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
-    features12.bufferDeviceAddress = true;
-    features12.descriptorIndexing = true;
+  VkPhysicalDeviceVulkan13Features features { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+  features.dynamicRendering = true;
+  features.synchronization2 = true;
 
-    vkb::PhysicalDeviceSelector selector {vkb_inst};
-    vkb::PhysicalDevice physicalDevice = selector
-      .set_minimum_version(1,3)
-      .set_required_features_13(features)
-      .set_required_features_12(features12)
-      .set_surface(surface)
-      .select()
-      .value();
-  
-    vkb::DeviceBuilder deviceBuilder{physicalDevice};
-    vkb::Device vkbDevice = deviceBuilder.build().value();
+  VkPhysicalDeviceVulkan12Features features12 { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+  features12.bufferDeviceAddress = true;
+  features12.descriptorIndexing = true;
 
-    device = vkbDevice.device;
-    chosen_gpu = physicalDevice.physical_device;
+  vkb::PhysicalDeviceSelector selector {vkb_inst};
+  vkb::PhysicalDevice physicalDevice = selector
+    .set_minimum_version(1,3)
+    .set_required_features_13(features)
+    .set_required_features_12(features12)
+    .set_surface(surface)
+    .select()
+    .value();
 
-    graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
-    graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+  vkb::DeviceBuilder deviceBuilder{physicalDevice};
+  vkb::Device vkbDevice = deviceBuilder.build().value();
+
+  device = vkbDevice.device;
+  chosen_gpu = physicalDevice.physical_device;
+
+  graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+  graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 
 auto Vulkan::Engine::init_swapchain() -> void 
