@@ -222,4 +222,6 @@ auto Vulkan::Engine::draw() -> void
     .pImageIndices = &swapchainImageIndex,
   };
   VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
+  
+  frame_number++;
 }
