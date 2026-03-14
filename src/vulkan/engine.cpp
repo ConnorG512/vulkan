@@ -2,12 +2,8 @@
 #include "VkBootstrap.h"
 #include "vulkan/initializer.hpp"
 #include "vulkan/util.hpp"
+#include "window.hpp"
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_video.h>
-#include <SDL3/SDL_vulkan.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -29,18 +25,9 @@
 
 constexpr bool use_validation_layers {true};
 
-auto Vulkan::Engine::init() -> void 
+auto Vulkan::Engine::init(Window::Instance& application_window) -> void 
 {
-  if(!SDL_Init(SDL_INIT_VIDEO))
-    throw std::runtime_error(std::format("Failed to init video. [{}],", SDL_GetError()));
-
-  SDL_WindowFlags window_flags {SDL_WINDOW_VULKAN};
-
-  window.reset(SDL_CreateWindow("window", 1280, 720, window_flags));
-  if(window == nullptr)
-    throw std::runtime_error(std::format("Failed to create window. [{}],", SDL_GetError()));
-
-  init_vulkan();
+  init_vulkan(application_window);
   init_swapchain();
   init_commands();
   init_sync_structures();
@@ -49,7 +36,7 @@ auto Vulkan::Engine::init() -> void
   std::println("Initialise complete!");
 }
 
-auto Vulkan::Engine::init_vulkan() -> void 
+auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 
 {
   vkb::InstanceBuilder builder;
   
@@ -66,9 +53,10 @@ auto Vulkan::Engine::init_vulkan() -> void
 
   instance = vkb_inst.instance;
   debug_messenger = vkb_inst.debug_messenger;
-
-  if(!SDL_Vulkan_CreateSurface(window.get(), instance, nullptr, &surface))
-    throw std::runtime_error(std::format("Failed to create Vulkan surface. [{}],", SDL_GetError()));
+  
+  const auto suface_result {application_window.create_vulkan_surface(instance, &surface)};
+  if(!suface_result.has_value())
+    throw std::runtime_error(suface_result.error());
 
   VkPhysicalDeviceVulkan13Features features { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
   features.dynamicRendering = true;
