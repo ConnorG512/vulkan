@@ -14,7 +14,7 @@ auto main() -> int
   Window::Instance window{};
 
   Vulkan::Engine engine{};
-  engine.init();
+  engine.init(window);
   
   bool done {false};
 
