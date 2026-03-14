@@ -3,6 +3,7 @@
 #include "vulkan/initializer.hpp"
 #include "vulkan/util.hpp"
 #include "window.hpp"
+#include "vulkan/error-handler.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -101,6 +102,11 @@ auto Vulkan::Engine::init_commands() -> void
   
   for(int index = 0; index < FRAME_OVERLAP; index++)
   {
+    const auto pool_res 
+      {Vulkan::Error::vk_check(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &frames[index].command_pool))};
+    if(!pool_res.has_value())
+      throw std::runtime_error(pool_res.error());
+
     VK_CHECK(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &frames[index].command_pool));
     VkCommandBufferAllocateInfo cmdAllocInfo {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
