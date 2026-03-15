@@ -10,20 +10,26 @@ find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED)
 find_package(vk-bootstrap REQUIRED)
 find_package(imgui REQUIRED)
+find_package(VulkanMemoryAllocator REQUIRED)
 
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
+  
+  src/window.cpp
+
+  src/vma.cpp
+  
+  src/vulkan/deletion-queue.cpp
   src/vulkan/engine.cpp
+  src/vulkan/error-handler.cpp
   src/vulkan/initializer.cpp
   src/vulkan/util.cpp
-  src/vulkan/error-handler.cpp
-  src/vulkan/deletion-queue.cpp
-  src/window.cpp
 )
 
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE
   # Libraries:
   Vulkan::Vulkan
+  GPUOpen::VulkanMemoryAllocator
   SDL3::SDL3
   vk-bootstrap::vk-bootstrap
   imgui::imgui
