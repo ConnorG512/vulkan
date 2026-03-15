@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vulkan/deletion-queue.hpp"
+
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 
@@ -11,6 +13,7 @@ namespace Vulkan
     VkCommandBuffer main_command_buffer;
     VkSemaphore swapchain_semaphore, render_semaphore;
     VkFence render_fence;
+    DeletionQueue deletion_queue{};
   };
   constexpr std::uint32_t FRAME_OVERLAP = 2;
 

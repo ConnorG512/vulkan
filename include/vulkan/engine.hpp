@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "vulkan/initializer.hpp"
+#include "vulkan/deletion-queue.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -24,6 +25,8 @@ namespace Vulkan
 
       VkSwapchainKHR swapchain;
       VkFormat swapchain_image_format;
+      
+      DeletionQueue deletion_queue{};
 
       std::vector<VkImage> swapchainImages {};
       std::vector<VkImageView> swapchainImageViews {};
