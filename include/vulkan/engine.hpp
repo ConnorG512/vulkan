@@ -56,6 +56,7 @@ namespace Vulkan
       auto init_sync_structures() -> void;
       auto cleanup() -> void;
       auto draw() -> void;
+      auto draw_background(VkCommandBuffer cmd) -> void;
 
     private:
       auto create_swapchain(uint32_t width, uint32_t height) -> void;

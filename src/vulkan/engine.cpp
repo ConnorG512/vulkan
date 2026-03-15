@@ -124,7 +124,7 @@ auto Vulkan::Engine::init_swapchain() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateImageView(device, &rview_info, nullptr, &drawImage.imageView)); !vk_res.has_value())
       std::println("{}", vk_res.error());
 
-  deletion_queue.push_function([=](){
+  deletion_queue.push_function([=, this](){
         vkDestroyImageView(device, drawImage.imageView, nullptr);
         vmaDestroyImage(allocator, drawImage.image, drawImage.allocation);
       });
@@ -231,6 +231,16 @@ auto Vulkan::Engine::cleanup() -> void
     std::println("Vulkan is not initialised for cleanup!");
 }
 
+auto Vulkan::Engine::draw_background(VkCommandBuffer cmd) -> void
+{
+  VkClearColorValue clearValue{};
+  auto flash {std::abs(std::sin(frame_number / 120.f))};
+  clearValue = {{0.0f, 0.0f, flash, 1.0f}};
+  
+  VkImageSubresourceRange clearRange {Vulkan::Util::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT)};
+  vkCmdClearColorImage(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
+}
+
 auto Vulkan::Engine::draw() -> void
 {
   constexpr auto FENCE_COUNT {1};
@@ -258,12 +268,7 @@ auto Vulkan::Engine::draw() -> void
 
   Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-  VkClearColorValue clearValue;
-  auto flash {std::abs(std::sin(frame_number / 120.f))};
-  clearValue = {{0.0f, 0.0f, flash, 1.0f}};
 
-  VkImageSubresourceRange clearRange {Vulkan::Util::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT)};
-  vkCmdClearColorImage(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
   Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
   
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
