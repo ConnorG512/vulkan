@@ -85,7 +85,7 @@ auto Vulkan::image_create_info(VkFormat format, VkImageUsageFlags usageFlags, Vk
   };
 }
 
-auto image_view_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) -> VkImageViewCreateInfo
+auto Vulkan::image_view_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) -> VkImageViewCreateInfo
 {
   return {
     .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
