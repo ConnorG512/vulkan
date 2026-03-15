@@ -44,6 +44,8 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
 
 auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) -> void
 {
+  constexpr auto Z_OFFSET {1};
+  
   VkImageBlit2 blitReigon {
     .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
     .pNext = nullptr,
@@ -55,7 +57,7 @@ auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destinatio
     },
     .srcOffsets = {
       {},
-      {static_cast<int32_t>(srcSize.width), static_cast<int32_t>(srcSize.height), 1}
+      {static_cast<int32_t>(srcSize.width), static_cast<int32_t>(srcSize.height), Z_OFFSET}
     },
     .dstSubresource = {
       .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -65,7 +67,7 @@ auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destinatio
     },
     .dstOffsets = {
       {},
-      {static_cast<int32_t>(dstSize.width), static_cast<int32_t>(dstSize.height), 1}
+      {static_cast<int32_t>(dstSize.width), static_cast<int32_t>(dstSize.height), Z_OFFSET}
     },
   };
 
@@ -80,4 +82,6 @@ auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destinatio
     .pRegions = &blitReigon,
     .filter = VK_FILTER_LINEAR,
   };
+
+  vkCmdBlitImage2(cmd, &blitInfo);
 }
