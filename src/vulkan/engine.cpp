@@ -48,13 +48,17 @@ auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void
   if(!suface_result.has_value())
     throw std::runtime_error(suface_result.error());
 
-  VkPhysicalDeviceVulkan13Features features { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
-  features.dynamicRendering = true;
-  features.synchronization2 = true;
+  VkPhysicalDeviceVulkan13Features features { 
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
+    .synchronization2 = true,
+    .dynamicRendering = true,
+  };
 
-  VkPhysicalDeviceVulkan12Features features12 { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
-  features12.bufferDeviceAddress = true;
-  features12.descriptorIndexing = true;
+  VkPhysicalDeviceVulkan12Features features12 { 
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+    .descriptorIndexing= true,
+    .bufferDeviceAddress = true,
+  };
 
   vkb::PhysicalDeviceSelector selector {vkb_inst};
   vkb::PhysicalDevice physicalDevice = selector
