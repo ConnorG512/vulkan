@@ -178,6 +178,8 @@ auto Vulkan::Engine::cleanup() -> void
       vkDestroySemaphore(device, frame.render_semaphore, nullptr);
       vkDestroySemaphore(device, frame.swapchain_semaphore, nullptr);
     }
+
+    deletion_queue.flush();
   }
   else 
     std::println("Vulkan is not initialised for cleanup!");
@@ -190,6 +192,8 @@ auto Vulkan::Engine::draw() -> void
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, FENCE_COUNT, &get_current_frame().render_fence, true, ONE_SECOND)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
+    
+  get_current_frame().deletion_queue.flush();
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkResetFences(device, FENCE_COUNT, &get_current_frame().render_fence)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
