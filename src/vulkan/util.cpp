@@ -42,7 +42,7 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
   vkCmdPipelineBarrier2(cmd, &dep_info);
 }
 
-auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) -> void
+auto Vulkan::Util::copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) -> void
 {
   constexpr auto Z_OFFSET {1};
   
