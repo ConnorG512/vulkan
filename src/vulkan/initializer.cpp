@@ -69,7 +69,7 @@ auto Vulkan::submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *
   };
 }
 
-auto image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) -> VkImageCreateInfo
+auto Vulkan::image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) -> VkImageCreateInfo
 {
   return {
     .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
