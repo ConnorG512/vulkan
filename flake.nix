@@ -79,6 +79,7 @@
         pkgs.sdl3
         pkgs.mesa
         pkgs.imgui
+        pkgs.vulkan-memory-allocator
       ];
 
       postFixup = 
