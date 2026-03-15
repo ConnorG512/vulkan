@@ -9,6 +9,6 @@ struct AllocatedImage {
   VkImageView imageView{};
   VmaAllocation allocation{};
   VkExtent3D imageExtent{};
-  VkFormat format{};
+  VkFormat imageFormat{};
 };
 } // namespace Vulkan
