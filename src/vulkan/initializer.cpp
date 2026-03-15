@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vulkan/initializer.hpp"
 #include <cassert>
 #include <vulkan/vulkan_core.h>
