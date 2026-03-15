@@ -6,6 +6,7 @@
 #include "vulkan/error-handler.hpp"
 
 #include <cmath>
+#include <complex>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
@@ -261,40 +262,26 @@ auto Vulkan::Engine::draw() -> void
   VkCommandBuffer cmd {get_current_frame().main_command_buffer};
   if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(cmd, 0)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
+  
+  drawExtent = {
+    .width = 1280,
+    .height = 720,
+  };
 
   VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
   if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
-
-  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
-
-
-  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
   
+  Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+  draw_background(cmd);
+
+  Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+  Vulkan::Util::copy_image_to_image(cmd, drawImage.image, swapchainImages[swapchainImageIndex], drawExtent, swapchain_extent);
+
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
-
-  VkCommandBufferSubmitInfo cmdinfo {Vulkan::command_buffer_submit_info(cmd)};
-  VkSemaphoreSubmitInfo waitinfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, get_current_frame().swapchain_semaphore)};
-  VkSemaphoreSubmitInfo signalinfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame().render_semaphore)};
-  VkSubmitInfo2 submit{Vulkan::submit_info(&cmdinfo, &signalinfo, &waitinfo)};
-  
-  if(const auto vk_res = Vulkan::Error::vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, get_current_frame().render_fence)); !vk_res.has_value())
-    std::runtime_error(vk_res.error());
-
-  VkPresentInfoKHR presentInfo 
-  {
-    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-    .pNext = nullptr,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores = &get_current_frame().render_semaphore,
-    .swapchainCount = 1,
-    .pSwapchains = &swapchain,
-    .pImageIndices = &swapchainImageIndex,
-  };
-
-  if(const auto vk_res = Vulkan::Error::vk_check(vkQueuePresentKHR(graphics_queue, &presentInfo)); !vk_res.has_value())
-    std::runtime_error(vk_res.error());
-  
-  frame_number++;
 }
