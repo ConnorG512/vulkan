@@ -1,4 +1,5 @@
 #include "vulkan/util.hpp"
+#include <cstdint>
 #include <vulkan/vulkan_core.h>
 
 auto Vulkan::Util::image_subresource_range(VkImageAspectFlags aspect_mask) -> VkImageSubresourceRange
@@ -39,4 +40,44 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
   };
 
   vkCmdPipelineBarrier2(cmd, &dep_info);
+}
+
+auto copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) -> void
+{
+  VkImageBlit2 blitReigon {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
+    .pNext = nullptr,
+    .srcSubresource = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .mipLevel = 0,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    },
+    .srcOffsets = {
+      {},
+      {static_cast<int32_t>(srcSize.width), static_cast<int32_t>(srcSize.height), 1}
+    },
+    .dstSubresource = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .mipLevel = 0,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    },
+    .dstOffsets = {
+      {},
+      {static_cast<int32_t>(dstSize.width), static_cast<int32_t>(dstSize.height), 1}
+    },
+  };
+
+  VkBlitImageInfo2 blitInfo = {
+    .sType = VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2,
+    .pNext = nullptr,
+    .srcImage = source,
+    .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    .dstImage = destination, 
+    .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    .regionCount = 1,
+    .pRegions = &blitReigon,
+    .filter = VK_FILTER_LINEAR,
+  };
 }
