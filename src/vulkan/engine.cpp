@@ -77,6 +77,16 @@ auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void
 
   graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
   graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+
+  VmaAllocatorCreateInfo allocatorInfo 
+  {
+    .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+    .physicalDevice = chosen_gpu,
+    .device = device,
+    .instance = instance,
+  };
+  vmaCreateAllocator(&allocatorInfo, &allocator);
+  deletion_queue.push_function([&](){vmaDestroyAllocator(allocator);});
 }
 
 auto Vulkan::Engine::init_swapchain() -> void 

@@ -3,6 +3,7 @@
 #include "vulkan/initializer.hpp"
 #include "vulkan/deletion-queue.hpp"
 
+#include <vk_mem_alloc.h>
 #include <cassert>
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
@@ -27,6 +28,8 @@ namespace Vulkan
       VkFormat swapchain_image_format;
       
       DeletionQueue deletion_queue{};
+      
+      VmaAllocator allocator{};
 
       std::vector<VkImage> swapchainImages {};
       std::vector<VkImageView> swapchainImageViews {};
