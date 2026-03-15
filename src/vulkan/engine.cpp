@@ -92,6 +92,42 @@ auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void
 auto Vulkan::Engine::init_swapchain() -> void 
 {
   create_swapchain(1280, 720);
+
+  VkExtent3D drawImageExtent = {
+    1280,
+    720,
+    1
+  };
+  
+  drawImage = {
+    .imageExtent = drawImageExtent,
+    .imageFormat = VK_FORMAT_R16G16B16_SFLOAT,
+  };
+  
+  VkImageUsageFlags drawImageUsages {
+    VK_IMAGE_USAGE_TRANSFER_SRC_BIT | 
+    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+    VK_IMAGE_USAGE_STORAGE_BIT | 
+    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+  };
+
+  VkImageCreateInfo rimg_info {Vulkan::image_create_info(drawImage.imageFormat, drawImageUsages, drawImageExtent)};
+
+  VmaAllocationCreateInfo rimg_alloc_info {
+    .usage = VMA_MEMORY_USAGE_GPU_ONLY,
+    .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+  };
+
+  vmaCreateImage(allocator, &rimg_info, &rimg_alloc_info, &drawImage.image, &drawImage.allocation, nullptr);
+  
+  VkImageViewCreateInfo rview_info {Vulkan::image_view_create_info(drawImage.imageFormat, drawImage.image, VK_IMAGE_ASPECT_COLOR_BIT)};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateImageView(device, &rview_info, nullptr, &drawImage.imageView)); !vk_res.has_value())
+      std::println("{}", vk_res.error());
+
+  deletion_queue.push_function([=](){
+        vkDestroyImageView(device, drawImage.imageView, nullptr);
+        vmaDestroyImage(allocator, drawImage.image, drawImage.allocation);
+      });
 }
 
 auto Vulkan::Engine::init_commands() -> void 
