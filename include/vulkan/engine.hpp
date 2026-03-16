@@ -20,14 +20,14 @@ namespace Vulkan
   class Engine 
   {
     public:
-      VkInstance instance;
-      VkDebugUtilsMessengerEXT debug_messenger;
-      VkPhysicalDevice chosen_gpu;
-      VkDevice device;
-      VkSurfaceKHR surface;
+      VkInstance instance{};
+      VkDebugUtilsMessengerEXT debug_messenger{};
+      VkPhysicalDevice chosen_gpu{};
+      VkDevice device{};
+      VkSurfaceKHR surface{};
 
-      VkSwapchainKHR swapchain;
-      VkFormat swapchain_image_format;
+      VkSwapchainKHR swapchain{};
+      VkFormat swapchain_image_format{};
       
       DeletionQueue deletion_queue{};
       
@@ -40,7 +40,7 @@ namespace Vulkan
 
       std::vector<VkImage> swapchainImages {};
       std::vector<VkImageView> swapchainImageViews {};
-      VkExtent2D swapchain_extent;
+      VkExtent2D swapchain_extent{};
       
       DescriptorAllocator globalDescriptorAllocator{};
       VkDescriptorSet drawImageDescriptors{};
@@ -52,8 +52,8 @@ namespace Vulkan
       {
         return frames[frame_number % FRAME_OVERLAP];
       }
-      VkQueue graphics_queue;
-      std::uint32_t graphics_queue_family;
+      VkQueue graphics_queue{};
+      std::uint32_t graphics_queue_family{};
 
       bool is_initialised = false;
 
