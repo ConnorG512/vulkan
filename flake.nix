@@ -82,6 +82,14 @@
         pkgs.imgui
         pkgs.vulkan-memory-allocator
       ];
+      
+      installPhase = ''
+        runHook preInstall
+        mkdir -p $out/shaders 
+        cp vulkan-app $out 
+        cp -r src/shaders/*.spv $out/shaders/
+        runHook postInstall
+      '';
 
       postFixup = 
       let
