@@ -101,7 +101,7 @@
       ''
         wrapProgram $out/bin/vulkan-app \
           --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs} \
-          --set SHADER_PATH shaders
+          --set SHADER_PATH "$out/bin/shaders"
       '';
     });
   };
