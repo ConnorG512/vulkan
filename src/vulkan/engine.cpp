@@ -283,13 +283,9 @@ auto Vulkan::Engine::cleanup() -> void
 
 auto Vulkan::Engine::draw_background(VkCommandBuffer cmd) -> void
 {
-  auto flash {std::abs(std::sin(frame_number / 120.f))};
-  VkClearColorValue clearValue{
-    {0.0f, 0.0f, flash, 1.0f},
-  };
-  
-  VkImageSubresourceRange clearRange {Vulkan::Util::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT)};
-  vkCmdClearColorImage(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
+  vkCmdBindPipeline(cmd,VK_PIPELINE_BIND_POINT_COMPUTE, gradientPipeLine);
+  vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gradientPipeLineLayout, 0, 1, &drawImageDescriptors, 0, nullptr);
+  vkCmdDispatch(cmd, std::ceil(drawExtent.width / 16.0f), std::ceil(drawExtent.height / 16.0f), 1);
 }
 
 auto Vulkan::Engine::draw() -> void
