@@ -32,7 +32,10 @@ namespace Vulkan
       
       VmaAllocator allocator{};
       AllocatedImage drawImage{};
-      VkExtent2D drawExtent{};
+      VkExtent2D drawExtent{
+        1280,
+        720,
+      };
 
       std::vector<VkImage> swapchainImages {};
       std::vector<VkImageView> swapchainImageViews {};
