@@ -8,7 +8,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <cstdlib>
 #include <format>
 #include <print>
 #include <stdexcept>
@@ -49,7 +48,7 @@ auto Vulkan::Engine::init_background_pipelines() -> void
     throw std::runtime_error(vk_res.error());
 
   VkShaderModule computeDrawShader {};
-  if(!Vulkan::Util::load_shader_module("../shaders/gradiant.comp", device, &computeDrawShader))
+  if(!Vulkan::Util::load_shader_module("src/shader/gradiant.comp", device, &computeDrawShader))
     std::println("Failed to open Shader File!");
 
   VkPipelineShaderStageCreateInfo stageInfo{
