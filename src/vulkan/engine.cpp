@@ -249,26 +249,29 @@ auto Vulkan::Engine::draw() -> void
   constexpr auto ONE_SECOND {1000000000};
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, FENCE_COUNT, &get_current_frame().render_fence, true, ONE_SECOND)); !vk_res.has_value())
-    std::runtime_error(vk_res.error());
+    throw std::runtime_error(vk_res.error());
     
-  get_current_frame().deletion_queue.flush();
-
   if(const auto vk_res = Vulkan::Error::vk_check(vkResetFences(device, FENCE_COUNT, &get_current_frame().render_fence)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
+  
+  get_current_frame().deletion_queue.flush();
 
   uint32_t swapchainImageIndex {};
   if(const auto vk_res = Vulkan::Error::vk_check(vkAcquireNextImageKHR(device, swapchain, ONE_SECOND, get_current_frame().swapchain_semaphore, nullptr, &swapchainImageIndex)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
 
   VkCommandBuffer cmd {get_current_frame().main_command_buffer};
-  if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(cmd, 0)); !vk_res.has_value())
+  if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(get_current_frame().main_command_buffer, 0)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
   
+  // Begin
   VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
   if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
-  
+
+  // Buffer Commands
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+  
   draw_background(cmd);
 
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -277,9 +280,11 @@ auto Vulkan::Engine::draw() -> void
   Vulkan::Util::copy_image_to_image(cmd, drawImage.image, swapchainImages[swapchainImageIndex], drawExtent, swapchain_extent);
 
   Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+  //
 
-  if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
-    std::runtime_error(vk_res.error());
+  if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(get_current_frame().main_command_buffer)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  // End
 
   frame_number++;
 }
