@@ -51,19 +51,20 @@ auto Vulkan::Engine::init_background_pipelines() -> void
 
   VkShaderModule computeDrawShader {};
 
-  
   const char* SHADER_PATH {std::getenv("SHADER_PATH")};
   if(SHADER_PATH != nullptr)
-    std::println("Shader path found: {}", SHADER_PATH);
+  {
+    std::println("Found shader path: {}.", SHADER_PATH);
+    if(!Vulkan::Util::load_shader_module(std::format("{}/{}", SHADER_PATH, "gradiant.spv"), device, &computeDrawShader))
+      throw std::runtime_error("Failed to open Shader File!");
+  }
   else
   {
-    std::println("No shader path found!");
-    const auto exec_path {std::filesystem::canonical("proc/self/exe").parent_path()};
-    std::println("Found exec path: {}", exec_path.string());
+    std::println("Shader path environment variable not set!");
+    const auto exec_path {std::filesystem::canonical("/proc/self/exe").parent_path()};
+    if(!Vulkan::Util::load_shader_module(std::format("{}/{}", exec_path.c_str(), "shaders/gradiant.spv"), device, &computeDrawShader))
+      throw std::runtime_error("Failed to open Shader File!");
   }
-
-  if(!Vulkan::Util::load_shader_module("src/shader/gradiant.", device, &computeDrawShader))
-    throw std::runtime_error("Failed to open Shader File!");
 
   VkPipelineShaderStageCreateInfo stageInfo{
     .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
