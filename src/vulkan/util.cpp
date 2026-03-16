@@ -112,7 +112,7 @@ auto Vulkan::Util::load_shader_module(std::string_view file_path, VkDevice devic
   VkShaderModuleCreateInfo createInfo{
     .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
     .pNext = nullptr,
-    .codeSize = buffer.size(),
+    .codeSize = buffer.size() * sizeof(std::uint32_t),
     .pCode = buffer.data(),
   };
 
