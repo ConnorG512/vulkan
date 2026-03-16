@@ -24,9 +24,56 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
   init_commands();
   init_sync_structures();
   init_descriptors();
+  init_pipelines();
 
   is_initialised = true;
   std::println("Initialise complete!");
+}
+
+auto Vulkan::Engine::init_pipelines() -> void
+{
+  init_background_pipelines();
+}
+
+
+auto Vulkan::Engine::init_background_pipelines() -> void 
+{
+  VkPipelineLayoutCreateInfo computeLayout{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+    .pNext = nullptr,
+    .setLayoutCount = 1,
+    .pSetLayouts = &drawImageDescriptorLayout,
+  };
+
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreatePipelineLayout(device, &computeLayout, nullptr, &gradientPipeLineLayout)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  VkShaderModule computeDrawShader {};
+  if(!Vulkan::Util::load_shader_module("../shaders/gradiant.comp", device, &computeDrawShader))
+    std::println("Failed to open Shader File!");
+
+  VkPipelineShaderStageCreateInfo stageInfo{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+    .pNext = nullptr,
+    .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+    .module = computeDrawShader,
+    .pName = "main",
+  };
+
+  VkComputePipelineCreateInfo computePipelineCreateInfo{
+    .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+    .pNext = nullptr,
+    .stage = stageInfo,
+    .layout = gradientPipeLineLayout,
+  };
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &gradientPipeLine)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  deletion_queue.push_function([this]{
+      vkDestroyPipelineLayout(device, gradientPipeLineLayout, nullptr);
+      vkDestroyPipeline(device, gradientPipeLine, nullptr);
+      });
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 

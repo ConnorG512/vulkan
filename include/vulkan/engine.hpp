@@ -45,6 +45,9 @@ namespace Vulkan
       DescriptorAllocator globalDescriptorAllocator{};
       VkDescriptorSet drawImageDescriptors{};
       VkDescriptorSetLayout drawImageDescriptorLayout{};
+      
+      VkPipeline gradientPipeLine {};
+      VkPipelineLayout gradientPipeLineLayout {};
 
       std::uint32_t frame_number {0};
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
@@ -70,5 +73,7 @@ namespace Vulkan
       auto create_swapchain(uint32_t width, uint32_t height) -> void;
       auto destroy_swapchain() -> void;
       auto init_descriptors() -> void;
+      auto init_pipelines() -> void;
+      auto init_background_pipelines() -> void;
   };
 }
