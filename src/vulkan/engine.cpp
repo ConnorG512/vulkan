@@ -102,7 +102,7 @@ auto Vulkan::Engine::init_swapchain() -> void
   
   drawImage = {
     .imageExtent = drawImageExtent,
-    .imageFormat = VK_FORMAT_R16G16B16_SFLOAT,
+    .imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT,
   };
   
   VkImageUsageFlags drawImageUsages {
