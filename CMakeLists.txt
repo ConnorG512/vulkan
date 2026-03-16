@@ -14,12 +14,11 @@ find_package(VulkanMemoryAllocator REQUIRED)
 
 add_executable(${EXECUTABLE_NAME} 
   src/main.cpp
-  
-  src/window.cpp
-
   src/vma.cpp
+  src/window.cpp
   
   src/vulkan/deletion-queue.cpp
+  src/vulkan/descriptors.cpp
   src/vulkan/engine.cpp
   src/vulkan/error-handler.cpp
   src/vulkan/initializer.cpp
