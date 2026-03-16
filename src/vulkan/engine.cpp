@@ -353,6 +353,19 @@ auto Vulkan::Engine::draw() -> void
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, get_current_frame().render_fence)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
+  
+  VkPresentInfoKHR presentInfo {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .pNext = nullptr,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &get_current_frame().render_semaphore,
+    .swapchainCount = 1,
+    .pSwapchains = &swapchain,
+    .pImageIndices = &swapchainImageIndex,
+  };
+
+  if(const auto vk_res = Vulkan::Error::vk_check(vkQueuePresentKHR(graphics_queue, &presentInfo)); !vk_res.has_value())
+      throw std::runtime_error(vk_res.error());
 
   frame_number++;
 }
