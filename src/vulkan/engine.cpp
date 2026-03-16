@@ -1,17 +1,18 @@
 #include "vulkan/engine.hpp"
 #include "VkBootstrap.h"
+#include "vulkan/descriptors.hpp"
 #include "vulkan/initializer.hpp"
 #include "vulkan/util.hpp"
 #include "window.hpp"
 #include "vulkan/error-handler.hpp"
 
 #include <cmath>
-#include <complex>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
 #include <print>
 #include <stdexcept>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
 constexpr bool use_validation_layers {true};
@@ -22,6 +23,7 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
   init_swapchain();
   init_commands();
   init_sync_structures();
+  init_descriptors();
 
   is_initialised = true;
   std::println("Initialise complete!");
@@ -287,4 +289,41 @@ auto Vulkan::Engine::draw() -> void
   // End
 
   frame_number++;
+}
+
+auto Vulkan::Engine::init_descriptors() -> void 
+{
+  std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
+    {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1}
+  };
+
+  globalDescriptorAllocator.init_pool(device, 10, sizes);
+
+  {
+    DescriptorLayoutBuilder builder {};
+    builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+    drawImageDescriptorLayout  = builder.build(device, VK_SHADER_STAGE_COMPUTE_BIT);
+  }
+
+  drawImageDescriptors = globalDescriptorAllocator.allocate(device, drawImageDescriptorLayout);
+  VkDescriptorImageInfo imgInfo{
+    .imageView = drawImage.imageView,
+    .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
+  };
+  
+  VkWriteDescriptorSet drawImageWrite {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+    .pNext = nullptr,
+    .dstSet = drawImageDescriptors,
+    .dstBinding = 0,
+    .descriptorCount = 1,
+    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    .pImageInfo = &imgInfo,
+  };
+  
+  vkUpdateDescriptorSets(device, 1, &drawImageWrite, 0, nullptr);
+  deletion_queue.push_function([&]{
+        globalDescriptorAllocator.destroy_pool(device);
+        vkDestroyDescriptorSetLayout(device, drawImageDescriptorLayout, nullptr);
+      });
 }
