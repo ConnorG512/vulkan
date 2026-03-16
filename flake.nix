@@ -16,6 +16,7 @@
         pkgs.cmake
         pkgs.ninja
         pkgs.pkg-config
+        pkgs.glslang
         
         # Vulkan:
         pkgs.vulkan-headers
@@ -79,7 +80,16 @@
         pkgs.sdl3
         pkgs.mesa
         pkgs.imgui
+        pkgs.vulkan-memory-allocator
       ];
+      
+      installPhase = ''
+        runHook preInstall
+        mkdir -p $out/bin/shaders
+        cp vulkan-app $out/bin
+        cp -r $src/src/shaders/*.spv $out/bin/shaders
+        runHook postInstall
+      '';
 
       postFixup = 
       let
@@ -90,7 +100,8 @@
       in
       ''
         wrapProgram $out/bin/vulkan-app \
-          --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs}
+          --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs} \
+          --set SHADER_PATH "$out/bin/shaders"
       '';
     });
   };

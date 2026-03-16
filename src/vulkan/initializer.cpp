@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vulkan/initializer.hpp"
 #include <cassert>
 #include <vulkan/vulkan_core.h>
@@ -68,5 +66,39 @@ auto Vulkan::submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *
     .pCommandBufferInfos = cmd,
     .signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_info == nullptr ? 0 : 1),
     .pSignalSemaphoreInfos = signal_semaphore_info,
+  };
+}
+
+auto Vulkan::image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) -> VkImageCreateInfo
+{
+  return {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+    .pNext = nullptr,
+    .imageType = VK_IMAGE_TYPE_2D,
+    .format = format,
+    .extent = extent,
+    .mipLevels = 1,
+    .arrayLayers = 1,
+    .samples = VK_SAMPLE_COUNT_1_BIT,
+    .tiling = VK_IMAGE_TILING_OPTIMAL,
+    .usage = usageFlags,
+  };
+}
+
+auto Vulkan::image_view_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) -> VkImageViewCreateInfo
+{
+  return {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .pNext = nullptr,
+    .image = image,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+    .format = format,
+    .subresourceRange = {
+      .aspectMask = aspectFlags,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    }
   };
 }

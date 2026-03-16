@@ -1,4 +1,9 @@
 #include "vulkan/util.hpp"
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
 auto Vulkan::Util::image_subresource_range(VkImageAspectFlags aspect_mask) -> VkImageSubresourceRange
@@ -39,4 +44,82 @@ auto Vulkan::Util::transition_image(VkCommandBuffer cmd, VkImage image, VkImageL
   };
 
   vkCmdPipelineBarrier2(cmd, &dep_info);
+}
+
+auto Vulkan::Util::copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize) -> void
+{
+  constexpr auto Z_OFFSET {1};
+  
+  VkImageBlit2 blitReigon {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
+    .pNext = nullptr,
+    .srcSubresource = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .mipLevel = 0,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    },
+    .srcOffsets = {
+      {},
+      {static_cast<int32_t>(srcSize.width), static_cast<int32_t>(srcSize.height), Z_OFFSET}
+    },
+    .dstSubresource = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .mipLevel = 0,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    },
+    .dstOffsets = {
+      {},
+      {static_cast<int32_t>(dstSize.width), static_cast<int32_t>(dstSize.height), Z_OFFSET}
+    },
+  };
+
+  VkBlitImageInfo2 blitInfo = {
+    .sType = VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2,
+    .pNext = nullptr,
+    .srcImage = source,
+    .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    .dstImage = destination, 
+    .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    .regionCount = 1,
+    .pRegions = &blitReigon,
+    .filter = VK_FILTER_LINEAR,
+  };
+
+  vkCmdBlitImage2(cmd, &blitInfo);
+}
+
+auto Vulkan::Util::load_shader_module(std::string_view file_path, VkDevice device, VkShaderModule *outShaderModule) -> bool
+{
+  assert(!file_path.empty());
+  assert(outShaderModule != nullptr);
+
+  std::ifstream file(file_path.data(), std::ios::ate | std::ios::binary);
+  if(!file.is_open())
+    return false;
+
+  const std::size_t file_size {static_cast<std::size_t>(file.tellg())};
+  
+  // Reserve memory big enough for the entire file, expected in uint32_t.
+  std::vector<std::uint32_t> buffer(file_size / sizeof(std::uint32_t));
+  
+  // Seek to the start, read and then close file.
+  file.seekg(0);
+  file.read(reinterpret_cast<char*>(buffer.data()), file_size);
+  file.close();
+
+  VkShaderModuleCreateInfo createInfo{
+    .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+    .pNext = nullptr,
+    .codeSize = buffer.size() * sizeof(std::uint32_t),
+    .pCode = buffer.data(),
+  };
+
+  VkShaderModule shaderModule{};
+  if(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule)!= VK_SUCCESS)
+    return false;
+
+  *outShaderModule = shaderModule;
+  return true;
 }
