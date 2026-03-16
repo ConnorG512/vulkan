@@ -8,11 +8,13 @@
 
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <format>
 #include <print>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include <filesystem>
 
 constexpr bool use_validation_layers {true};
 
@@ -48,7 +50,19 @@ auto Vulkan::Engine::init_background_pipelines() -> void
     throw std::runtime_error(vk_res.error());
 
   VkShaderModule computeDrawShader {};
-  if(!Vulkan::Util::load_shader_module("src/shader/gradiant.comp", device, &computeDrawShader))
+
+  
+  const char* SHADER_PATH {std::getenv("SHADER_PATH")};
+  if(SHADER_PATH != nullptr)
+    std::println("Shader path found: {}", SHADER_PATH);
+  else
+  {
+    std::println("No shader path found!");
+    const auto exec_path {std::filesystem::canonical("proc/self/exe").parent_path()};
+    std::println("Found exec path: {}", exec_path.string());
+  }
+
+  if(!Vulkan::Util::load_shader_module("src/shader/gradiant.", device, &computeDrawShader))
     throw std::runtime_error("Failed to open Shader File!");
 
   VkPipelineShaderStageCreateInfo stageInfo{
