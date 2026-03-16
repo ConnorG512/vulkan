@@ -90,7 +90,7 @@ auto Vulkan::Util::copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkIm
   vkCmdBlitImage2(cmd, &blitInfo);
 }
 
-auto load_shader_module(std::string_view file_path, VkDevice device, VkShaderModule *outShaderModule) -> bool
+auto Vulkan::Util::load_shader_module(std::string_view file_path, VkDevice device, VkShaderModule *outShaderModule) -> bool
 {
   assert(!file_path.empty());
   assert(outShaderModule != nullptr);
