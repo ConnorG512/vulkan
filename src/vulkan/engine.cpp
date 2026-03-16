@@ -263,11 +263,6 @@ auto Vulkan::Engine::draw() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(cmd, 0)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
   
-  drawExtent = {
-    .width = 1280,
-    .height = 720,
-  };
-
   VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
   if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
@@ -284,4 +279,6 @@ auto Vulkan::Engine::draw() -> void
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
     std::runtime_error(vk_res.error());
+
+  frame_number++;
 }
