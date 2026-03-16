@@ -1,5 +1,6 @@
 #pragma once 
 
+#include "vulkan/descriptors.hpp"
 #include "vulkan/initializer.hpp"
 #include "vulkan/deletion-queue.hpp"
 #include "vulkan/image.hpp"
@@ -41,6 +42,10 @@ namespace Vulkan
       std::vector<VkImageView> swapchainImageViews {};
       VkExtent2D swapchain_extent;
       
+      DescriptorAllocator globalDescriptorAllocator{};
+      VkDescriptorSet drawImageDescriptors{};
+      VkDescriptorSetLayout drawImageDescriptorLayout{};
+
       std::uint32_t frame_number {0};
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
       auto get_current_frame() -> FrameData&
@@ -64,5 +69,6 @@ namespace Vulkan
     private:
       auto create_swapchain(uint32_t width, uint32_t height) -> void;
       auto destroy_swapchain() -> void;
+      auto init_descriptors() -> void;
   };
 }
