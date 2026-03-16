@@ -234,9 +234,10 @@ auto Vulkan::Engine::cleanup() -> void
 
 auto Vulkan::Engine::draw_background(VkCommandBuffer cmd) -> void
 {
-  VkClearColorValue clearValue{};
   auto flash {std::abs(std::sin(frame_number / 120.f))};
-  clearValue = {{0.0f, 0.0f, flash, 1.0f}};
+  VkClearColorValue clearValue{
+    {0.0f, 0.0f, flash, 1.0f},
+  };
   
   VkImageSubresourceRange clearRange {Vulkan::Util::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT)};
   vkCmdClearColorImage(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
