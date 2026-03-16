@@ -55,7 +55,7 @@ namespace Vulkan
       VkQueue graphics_queue{};
       std::uint32_t graphics_queue_family{};
 
-      bool is_initialised = false;
+      bool is_initialised {false};
 
       auto init(Window::Instance& application_window) -> void;
       auto init_vulkan(Window::Instance& application_window) -> void;
