@@ -49,7 +49,7 @@ auto Vulkan::Engine::init_background_pipelines() -> void
 
   VkShaderModule computeDrawShader {};
   if(!Vulkan::Util::load_shader_module("src/shader/gradiant.comp", device, &computeDrawShader))
-    std::println("Failed to open Shader File!");
+    throw std::runtime_error("Failed to open Shader File!");
 
   VkPipelineShaderStageCreateInfo stageInfo{
     .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
