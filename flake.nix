@@ -16,6 +16,7 @@
         pkgs.cmake
         pkgs.ninja
         pkgs.pkg-config
+        pkgs.glslang
         
         # Vulkan:
         pkgs.vulkan-headers
