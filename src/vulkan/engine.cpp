@@ -344,6 +344,15 @@ auto Vulkan::Engine::draw() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(get_current_frame().main_command_buffer)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
   // End
+  
+  VkCommandBufferSubmitInfo cmdInfo {Vulkan::command_buffer_submit_info(cmd)};
+  VkSemaphoreSubmitInfo waitInfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, get_current_frame().swapchain_semaphore)};
+  VkSemaphoreSubmitInfo signalInfo {Vulkan::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame().render_semaphore)};
+  
+  VkSubmitInfo2 submit {Vulkan::submit_info(&cmdInfo, &signalInfo, &waitInfo)};
+
+  if(const auto vk_res = Vulkan::Error::vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, get_current_frame().render_fence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
 
   frame_number++;
 }
