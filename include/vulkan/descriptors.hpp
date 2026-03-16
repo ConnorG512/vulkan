@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 namespace Vulkan {
@@ -14,5 +15,22 @@ public:
 
 private:
   std::vector<VkDescriptorSetLayoutBinding> bindings_{};
+};
+
+class DescriptorAllocator 
+{
+  public: 
+    struct PoolSizeRatio {
+      VkDescriptorType type {};
+      float ratio {};
+    };
+    
+    auto init_pool(VkDevice device, std::uint32_t maxSets, std::span<PoolSizeRatio> poolRatios) noexcept -> void;
+    auto clear_descriptors(VkDevice device) noexcept -> void;
+    auto destroy_pool(VkDevice device) noexcept -> void;
+    auto allocate(VkDevice device, VkDescriptorSetLayout layout) const -> VkDescriptorSet;
+
+  private:
+    VkDescriptorPool pool{};
 };
 } // namespace Vulkan
