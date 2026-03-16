@@ -85,9 +85,9 @@
       
       installPhase = ''
         runHook preInstall
-        mkdir -p $out/shaders 
-        cp vulkan-app $out 
-        cp -r src/shaders/*.spv $out/shaders/
+        mkdir -p $out/bin/shaders
+        cp vulkan-app $out/bin
+        cp -r $src/src/shaders/*.spv $out/bin/shaders
         runHook postInstall
       '';
 
@@ -100,7 +100,8 @@
       in
       ''
         wrapProgram $out/bin/vulkan-app \
-          --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs}
+          --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath libs} \
+          --set SHADER_PATH shaders
       '';
     });
   };
