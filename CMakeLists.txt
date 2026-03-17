@@ -24,8 +24,13 @@ add_executable(${EXECUTABLE_NAME}
   src/vulkan/initializer.cpp
   src/vulkan/util.cpp
 
-  third-party/imgui-backends/imgui_impl_sdl3.cpp
-  third-party/imgui-backends/imgui_impl_vulkan.cpp
+  third-party/imgui/imgui.cpp
+  third-party/imgui/demo.cpp
+  third-party/imgui/draw.cpp
+  third-party/imgui/tables.cpp
+  third-party/imgui/widgets.cpp
+  third-party/imgui/imgui_impl_sdl3.cpp
+  third-party/imgui/imgui_impl_vulkan.cpp
 )
 
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE
