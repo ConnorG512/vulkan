@@ -25,10 +25,10 @@ add_executable(${EXECUTABLE_NAME}
   src/vulkan/util.cpp
 
   third-party/imgui/imgui.cpp
-  third-party/imgui/demo.cpp
-  third-party/imgui/draw.cpp
-  third-party/imgui/tables.cpp
-  third-party/imgui/widgets.cpp
+  third-party/imgui/imgui_demo.cpp
+  third-party/imgui/imgui_draw.cpp
+  third-party/imgui/imgui_tables.cpp
+  third-party/imgui/imgui_widgets.cpp
   third-party/imgui/imgui_impl_sdl3.cpp
   third-party/imgui/imgui_impl_vulkan.cpp
 )
