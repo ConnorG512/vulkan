@@ -23,6 +23,9 @@ add_executable(${EXECUTABLE_NAME}
   src/vulkan/error-handler.cpp
   src/vulkan/initializer.cpp
   src/vulkan/util.cpp
+
+  third-party/imgui-backends/imgui_impl_sdl3.cpp
+  third-party/imgui-backends/imgui_impl_vulkan.cpp
 )
 
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE
@@ -36,6 +39,7 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE
 
 target_include_directories(${EXECUTABLE_NAME} PRIVATE 
   "${CMAKE_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/third-party"
 )
 
 install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION bin)
