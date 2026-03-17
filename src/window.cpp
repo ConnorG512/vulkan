@@ -39,3 +39,8 @@ Window::Instance::create_vulkan_surface(VkInstance vk_instance,
   else
     return {};
 }
+
+[[nodiscard]] auto Window::Instance::get_window_instance() -> SDL_Window*
+{
+  return window_.get();
+}
