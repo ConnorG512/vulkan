@@ -84,7 +84,7 @@ auto Vulkan::Engine::init_background_pipelines() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &gradientPipeLine)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
 
-  deletion_queue.push_function([this]{
+  mainDeletionQueue.push_function([this]{
       vkDestroyPipelineLayout(device, gradientPipeLineLayout, nullptr);
       vkDestroyPipeline(device, gradientPipeLine, nullptr);
       });
@@ -150,7 +150,7 @@ auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void
     .instance = instance,
   };
   vmaCreateAllocator(&allocatorInfo, &allocator);
-  deletion_queue.push_function([&](){vmaDestroyAllocator(allocator);});
+  mainDeletionQueue.push_function([&](){vmaDestroyAllocator(allocator);});
 }
 
 auto Vulkan::Engine::init_swapchain() -> void 
@@ -188,7 +188,7 @@ auto Vulkan::Engine::init_swapchain() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateImageView(device, &rview_info, nullptr, &drawImage.imageView)); !vk_res.has_value())
       std::println("{}", vk_res.error());
 
-  deletion_queue.push_function([=, this](){
+  mainDeletionQueue.push_function([=, this](){
         vkDestroyImageView(device, drawImage.imageView, nullptr);
         vmaDestroyImage(allocator, drawImage.image, drawImage.allocation);
       });
@@ -202,6 +202,17 @@ auto Vulkan::Engine::init_commands() -> void
     .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
     .queueFamilyIndex = graphics_queue_family
   };
+
+  if (const auto vk_res = Vulkan::Error::vk_check(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &immCommandPool)); vk_res.has_value())
+      std::runtime_error(vk_res.error());
+
+  VkCommandBufferAllocateInfo cmdAllocInfo {Vulkan::command_buffer_allocate_info(immCommandPool, 1)};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkAllocateCommandBuffers(device, &cmdAllocInfo, &immCommandBuffer)); !vk_res.has_value())
+      std::runtime_error(vk_res.error());
+
+  mainDeletionQueue.push_function([this]{
+      vkDestroyCommandPool(device, immCommandPool, nullptr);
+      });
   
   for(int index = 0; index < FRAME_OVERLAP; index++)
   {
@@ -227,18 +238,22 @@ auto Vulkan::Engine::init_commands() -> void
 
 auto Vulkan::Engine::init_sync_structures() -> void 
 {
-  VkFenceCreateInfo fence_create_info {Vulkan::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT)};
-  VkSemaphoreCreateInfo semaphore_create_info {Vulkan::semaphore_create_info()};
+  VkFenceCreateInfo fenceCreateInfo {Vulkan::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT)};
+  VkSemaphoreCreateInfo semaphoreCreateInfo {Vulkan::semaphore_create_info()};
 
   for(auto& frame : frames)
   {
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fence_create_info, nullptr, &frame.render_fence)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fenceCreateInfo, nullptr, &frame.render_fence)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frame.swapchain_semaphore)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.render_semaphore)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frame.render_semaphore)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
   }
+
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fenceCreateInfo, nullptr, &immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  mainDeletionQueue.push_function([this]{vkDestroyFence(device, immFence, nullptr);});
 }
 
 auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
@@ -289,7 +304,7 @@ auto Vulkan::Engine::cleanup() -> void
       vkDestroySemaphore(device, frame.swapchain_semaphore, nullptr);
     }
 
-    deletion_queue.flush();
+    mainDeletionQueue.flush();
   }
   else 
     std::println("Vulkan is not initialised for cleanup!");
@@ -401,8 +416,39 @@ auto Vulkan::Engine::init_descriptors() -> void
   };
   
   vkUpdateDescriptorSets(device, 1, &drawImageWrite, 0, nullptr);
-  deletion_queue.push_function([&]{
+  mainDeletionQueue.push_function([&]{
         globalDescriptorAllocator.destroy_pool(device);
         vkDestroyDescriptorSetLayout(device, drawImageDescriptorLayout, nullptr);
       });
+}
+
+auto Vulkan::Engine::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) -> void
+{
+  if(const auto vk_res = Vulkan::Error::vk_check(vkResetFences(device, 1, &immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(immCommandBuffer, 0)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  VkCommandBuffer cmd {};
+
+  VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  function(cmd);
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  VkCommandBufferSubmitInfo cmdInfo {Vulkan::command_buffer_submit_info(cmd)};
+  VkSubmitInfo2 submit {Vulkan::submit_info(&cmdInfo, nullptr, nullptr)};
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  constexpr auto TIMEOUT {9999999999};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, 1, &immFence, true, TIMEOUT)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
 }
