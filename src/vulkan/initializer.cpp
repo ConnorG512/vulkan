@@ -53,6 +53,17 @@ auto Vulkan::command_buffer_submit_info(VkCommandBuffer cmd) -> VkCommandBufferS
   };
 }
 
+auto Vulkan::command_buffer_allocate_info(VkCommandPool pool, std::uint32_t count) -> VkCommandBufferAllocateInfo
+{
+  return VkCommandBufferAllocateInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    .pNext = nullptr,
+    .commandPool = pool,
+    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+    .commandBufferCount = count,
+  };
+}
+
 auto Vulkan::submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *signal_semaphore_info, VkSemaphoreSubmitInfo *wait_semaphore_info) -> VkSubmitInfo2
 {
   assert(cmd != nullptr);
