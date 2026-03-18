@@ -83,6 +83,7 @@ namespace Vulkan
       auto init_descriptors() -> void;
       auto init_pipelines() -> void;
       auto init_background_pipelines() -> void;
+      auto init_foreground_pipelines() -> void;
 
       auto init_imgui(Window::Instance& application_window) -> void;
       auto draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void;

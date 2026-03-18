@@ -41,8 +41,8 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
 auto Vulkan::Engine::init_pipelines() -> void
 {
   init_background_pipelines();
+  init_foreground_pipelines();
 }
-
 
 auto Vulkan::Engine::init_background_pipelines() -> void 
 {
@@ -84,6 +84,11 @@ auto Vulkan::Engine::init_background_pipelines() -> void
       vkDestroyPipelineLayout(device, gradientPipeLineLayout, nullptr);
       vkDestroyPipeline(device, gradientPipeLine, nullptr);
       });
+}
+
+auto init_foreground_pipelines() -> void
+{
+
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 
