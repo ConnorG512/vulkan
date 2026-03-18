@@ -45,7 +45,7 @@ auto Vulkan::ShaderModule::load_shader(const std::string &path)
   VkShaderModule shaderModule{};
   vkCreateShaderModule(device_, &createInfo, nullptr, &shaderModule);
 
-  return std::move(shaderModule);
+  return shaderModule;
 }
 
 auto Vulkan::ShaderModule::get_vk_module() -> VkShaderModule
