@@ -16,13 +16,11 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <cstdlib>
 #include <format>
 #include <print>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include <filesystem>
 
 constexpr bool use_validation_layers {true};
 
