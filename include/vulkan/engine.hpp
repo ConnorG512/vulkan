@@ -60,6 +60,8 @@ namespace Vulkan
         return frames[frame_number % FRAME_OVERLAP];
       }
       VkQueue graphics_queue{};
+      
+
       std::uint32_t graphics_queue_family{};
 
       bool is_initialised {false};
@@ -82,6 +84,7 @@ namespace Vulkan
       auto init_pipelines() -> void;
       auto init_background_pipelines() -> void;
 
-      auto init_imgui() -> void;
+      auto init_imgui(Window::Instance& application_window) -> void;
+      auto draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void;
   };
 }

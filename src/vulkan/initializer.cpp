@@ -113,3 +113,16 @@ auto Vulkan::image_view_create_info(VkFormat format, VkImage image, VkImageAspec
     }
   };
 }
+
+auto Vulkan::attachment_info(VkImageView view, VkClearValue *clear, VkImageLayout layout) -> VkRenderingAttachmentInfo
+{
+  return VkRenderingAttachmentInfo {
+    .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+    .pNext = nullptr,
+    .imageView = view,
+    .imageLayout = layout,
+    .loadOp = (clear != nullptr) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD,
+    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+    .clearValue = (clear != nullptr) ? *clear : VkClearValue{},
+  };
+}

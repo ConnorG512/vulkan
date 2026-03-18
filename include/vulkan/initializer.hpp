@@ -26,4 +26,5 @@ namespace Vulkan
   auto submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *signal_semaphore_info, VkSemaphoreSubmitInfo *wait_semaphore_info) -> VkSubmitInfo2;
   auto image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) -> VkImageCreateInfo;
   auto image_view_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) -> VkImageViewCreateInfo;
+  auto attachment_info(VkImageView view, VkClearValue *clear, VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) -> VkRenderingAttachmentInfo;
 }

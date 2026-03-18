@@ -6,6 +6,11 @@
 #include "window.hpp"
 #include "vulkan/error-handler.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl3.h"
+#include "imgui/imgui_impl_vulkan.h"
+
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -26,6 +31,7 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
   init_sync_structures();
   init_descriptors();
   init_pipelines();
+  //init_imgui(application_window);
 
   is_initialised = true;
   std::println("Initialise complete!");
@@ -353,9 +359,13 @@ auto Vulkan::Engine::draw() -> void
 
   Vulkan::Util::copy_image_to_image(cmd, drawImage.image, swapchainImages[swapchainImageIndex], drawExtent, swapchain_extent);
 
-  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-  //
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+  //draw_imgui(cmd, swapchainImageViews[swapchainImageIndex]);
+
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+  
+  //
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(get_current_frame().main_command_buffer)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
   // End
@@ -451,4 +461,86 @@ auto Vulkan::Engine::immediate_submit(std::function<void(VkCommandBuffer cmd)>&&
   constexpr auto TIMEOUT {9999999999};
   if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, 1, &immFence, true, TIMEOUT)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
+}
+
+auto Vulkan::Engine::init_imgui(Window::Instance& application_window) -> void 
+{
+  constexpr auto pool_sizes = std::to_array<VkDescriptorPoolSize>({
+      {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+      {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+      {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+      {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000},
+  });
+  
+  VkDescriptorPoolCreateInfo pool_info {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+    .maxSets = 1000,
+    .poolSizeCount = static_cast<std::uint32_t>(pool_sizes.size()),
+    .pPoolSizes = pool_sizes.data(),
+  };
+
+  VkDescriptorPool imguiPool{};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateDescriptorPool(device, &pool_info, nullptr, &imguiPool)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  // Creating the ImGui context:
+  ImGui::CreateContext();
+  
+  ImGui_ImplSDL3_InitForVulkan(application_window.get_window_instance());
+
+  ImGui_ImplVulkan_InitInfo init_info {
+    .Instance = instance,
+    .PhysicalDevice = chosen_gpu,
+    .Device = device,
+    .Queue = graphics_queue,
+    .DescriptorPool = imguiPool,
+    .MinImageCount = 3,
+    .ImageCount = 3,
+    .PipelineInfoMain = {
+      .RenderPass = VK_NULL_HANDLE,
+      .Subpass = 0,
+      .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
+    },
+    .UseDynamicRendering = true,
+  };
+  
+  ImGui_ImplVulkan_Init(&init_info);
+  mainDeletionQueue.push_function([=, this]{
+      ImGui_ImplVulkan_Shutdown();
+      vkDestroyDescriptorPool(device, imguiPool, nullptr);
+      });
+}
+
+auto Vulkan::Engine::draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void
+{
+  VkRenderingAttachmentInfo colorAttachment {Vulkan::attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)};
+  VkRenderingInfo renderInfo {
+    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+    .pNext = nullptr,
+    .flags = 0,
+    .renderArea = {
+      .extent = VkExtent2D {
+        .width = 1280,
+        .height = 720,
+      },
+    },
+    .layerCount = 1,
+    .viewMask = 0,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachment,
+    .pDepthAttachment = nullptr,
+    .pStencilAttachment = nullptr,
+  };
+
+  vkCmdBeginRendering(cmd, &renderInfo);
+  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+  vkCmdEndRendering(cmd);
 }
