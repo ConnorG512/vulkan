@@ -1,10 +1,13 @@
 #include "vulkan/engine.hpp"
 #include "VkBootstrap.h"
+#include "file-util.hpp"
 #include "vulkan/descriptors.hpp"
 #include "vulkan/initializer.hpp"
 #include "vulkan/util.hpp"
 #include "window.hpp"
 #include "vulkan/error-handler.hpp"
+#include "vulkan/pipeline.hpp"
+#include "vulkan/shader-module.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl3.h"
@@ -54,39 +57,24 @@ auto Vulkan::Engine::init_background_pipelines() -> void
 
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreatePipelineLayout(device, &computeLayout, nullptr, &gradientPipeLineLayout)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
-
-  VkShaderModule computeDrawShader {};
-
-  const char* SHADER_PATH {std::getenv("SHADER_PATH")};
-  if(SHADER_PATH != nullptr)
-  {
-    std::println("Found shader path: {}.", SHADER_PATH);
-    if(!Vulkan::Util::load_shader_module(std::format("{}/{}", SHADER_PATH, "gradiant.spv"), device, &computeDrawShader))
-      throw std::runtime_error("Failed to open Shader File!");
-  }
-  else
-  {
-    std::println("Shader path environment variable not set!");
-    const auto exec_path {std::filesystem::canonical("/proc/self/exe").parent_path()};
-    if(!Vulkan::Util::load_shader_module(std::format("{}/{}", exec_path.c_str(), "shaders/gradiant.spv"), device, &computeDrawShader))
-      throw std::runtime_error("Failed to open Shader File!");
-  }
-
-  VkPipelineShaderStageCreateInfo stageInfo{
+  
+  const auto shader_path {::Util::get_shader_file_path("gradiant.spv")};
+  Vulkan::ShaderModule gradiant{shader_path, device};
+  
+  VkPipelineShaderStageCreateInfo stageInfo {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-    .pNext = nullptr,
     .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-    .module = computeDrawShader,
+    .module = gradiant.get_vk_module(),
     .pName = "main",
   };
 
-  VkComputePipelineCreateInfo computePipelineCreateInfo{
+  VkComputePipelineCreateInfo computePipelineCreateInfo {
     .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
     .pNext = nullptr,
     .stage = stageInfo,
     .layout = gradientPipeLineLayout,
   };
-  
+
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &gradientPipeLine)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
 
