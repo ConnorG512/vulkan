@@ -29,7 +29,7 @@ namespace Vulkan
       VkSwapchainKHR swapchain{};
       VkFormat swapchain_image_format{};
       
-      DeletionQueue deletion_queue{};
+      DeletionQueue mainDeletionQueue{};
       
       VmaAllocator allocator{};
       AllocatedImage drawImage{};
@@ -48,6 +48,10 @@ namespace Vulkan
       
       VkPipeline gradientPipeLine {};
       VkPipelineLayout gradientPipeLineLayout {};
+      
+      VkFence immFence{};
+      VkCommandBuffer immCommandBuffer{};
+      VkCommandPool immCommandPool{};
 
       std::uint32_t frame_number {0};
       Vulkan::FrameData frames[Vulkan::FRAME_OVERLAP];
@@ -56,6 +60,8 @@ namespace Vulkan
         return frames[frame_number % FRAME_OVERLAP];
       }
       VkQueue graphics_queue{};
+      
+
       std::uint32_t graphics_queue_family{};
 
       bool is_initialised {false};
@@ -69,11 +75,16 @@ namespace Vulkan
       auto draw() -> void;
       auto draw_background(VkCommandBuffer cmd) -> void;
 
+      auto immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) -> void;
+
     private:
       auto create_swapchain(uint32_t width, uint32_t height) -> void;
       auto destroy_swapchain() -> void;
       auto init_descriptors() -> void;
       auto init_pipelines() -> void;
       auto init_background_pipelines() -> void;
+
+      auto init_imgui(Window::Instance& application_window) -> void;
+      auto draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void;
   };
 }

@@ -53,6 +53,17 @@ auto Vulkan::command_buffer_submit_info(VkCommandBuffer cmd) -> VkCommandBufferS
   };
 }
 
+auto Vulkan::command_buffer_allocate_info(VkCommandPool pool, std::uint32_t count) -> VkCommandBufferAllocateInfo
+{
+  return VkCommandBufferAllocateInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    .pNext = nullptr,
+    .commandPool = pool,
+    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+    .commandBufferCount = count,
+  };
+}
+
 auto Vulkan::submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *signal_semaphore_info, VkSemaphoreSubmitInfo *wait_semaphore_info) -> VkSubmitInfo2
 {
   assert(cmd != nullptr);
@@ -100,5 +111,18 @@ auto Vulkan::image_view_create_info(VkFormat format, VkImage image, VkImageAspec
       .baseArrayLayer = 0,
       .layerCount = 1,
     }
+  };
+}
+
+auto Vulkan::attachment_info(VkImageView view, VkClearValue *clear, VkImageLayout layout) -> VkRenderingAttachmentInfo
+{
+  return VkRenderingAttachmentInfo {
+    .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+    .pNext = nullptr,
+    .imageView = view,
+    .imageLayout = layout,
+    .loadOp = (clear != nullptr) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD,
+    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+    .clearValue = (clear != nullptr) ? *clear : VkClearValue{},
   };
 }

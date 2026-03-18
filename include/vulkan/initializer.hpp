@@ -22,7 +22,9 @@ namespace Vulkan
   auto semaphore_submit_info(VkPipelineStageFlags2 stage_mask, VkSemaphore semaphore) -> VkSemaphoreSubmitInfo;
   auto command_buffer_begin_info(VkCommandBufferUsageFlags flags = 0) -> VkCommandBufferBeginInfo;
   auto command_buffer_submit_info(VkCommandBuffer cmd) -> VkCommandBufferSubmitInfo;
+  auto command_buffer_allocate_info(VkCommandPool pool, std::uint32_t count = 1) -> VkCommandBufferAllocateInfo;
   auto submit_info(VkCommandBufferSubmitInfo *cmd, VkSemaphoreSubmitInfo *signal_semaphore_info, VkSemaphoreSubmitInfo *wait_semaphore_info) -> VkSubmitInfo2;
   auto image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent) -> VkImageCreateInfo;
   auto image_view_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags) -> VkImageViewCreateInfo;
+  auto attachment_info(VkImageView view, VkClearValue *clear, VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) -> VkRenderingAttachmentInfo;
 }

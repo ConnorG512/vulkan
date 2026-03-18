@@ -23,5 +23,6 @@ public:
   [[nodiscard]] auto create_vulkan_surface(VkInstance vk_instance,
                                            VkSurfaceKHR *vk_surface)
       -> std::expected<void, std::string>;
+  [[nodiscard]] auto get_window_instance() -> SDL_Window*;
 };
 } // namespace Window

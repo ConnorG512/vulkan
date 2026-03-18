@@ -6,6 +6,11 @@
 #include "window.hpp"
 #include "vulkan/error-handler.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl3.h"
+#include "imgui/imgui_impl_vulkan.h"
+
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -26,6 +31,7 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
   init_sync_structures();
   init_descriptors();
   init_pipelines();
+  //init_imgui(application_window);
 
   is_initialised = true;
   std::println("Initialise complete!");
@@ -84,7 +90,7 @@ auto Vulkan::Engine::init_background_pipelines() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &gradientPipeLine)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
 
-  deletion_queue.push_function([this]{
+  mainDeletionQueue.push_function([this]{
       vkDestroyPipelineLayout(device, gradientPipeLineLayout, nullptr);
       vkDestroyPipeline(device, gradientPipeLine, nullptr);
       });
@@ -150,7 +156,7 @@ auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void
     .instance = instance,
   };
   vmaCreateAllocator(&allocatorInfo, &allocator);
-  deletion_queue.push_function([&](){vmaDestroyAllocator(allocator);});
+  mainDeletionQueue.push_function([&](){vmaDestroyAllocator(allocator);});
 }
 
 auto Vulkan::Engine::init_swapchain() -> void 
@@ -188,7 +194,7 @@ auto Vulkan::Engine::init_swapchain() -> void
   if(const auto vk_res = Vulkan::Error::vk_check(vkCreateImageView(device, &rview_info, nullptr, &drawImage.imageView)); !vk_res.has_value())
       std::println("{}", vk_res.error());
 
-  deletion_queue.push_function([=, this](){
+  mainDeletionQueue.push_function([=, this](){
         vkDestroyImageView(device, drawImage.imageView, nullptr);
         vmaDestroyImage(allocator, drawImage.image, drawImage.allocation);
       });
@@ -202,6 +208,17 @@ auto Vulkan::Engine::init_commands() -> void
     .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
     .queueFamilyIndex = graphics_queue_family
   };
+
+  if (const auto vk_res = Vulkan::Error::vk_check(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &immCommandPool)); vk_res.has_value())
+      std::runtime_error(vk_res.error());
+
+  VkCommandBufferAllocateInfo cmdAllocInfo {Vulkan::command_buffer_allocate_info(immCommandPool, 1)};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkAllocateCommandBuffers(device, &cmdAllocInfo, &immCommandBuffer)); !vk_res.has_value())
+      std::runtime_error(vk_res.error());
+
+  mainDeletionQueue.push_function([this]{
+      vkDestroyCommandPool(device, immCommandPool, nullptr);
+      });
   
   for(int index = 0; index < FRAME_OVERLAP; index++)
   {
@@ -227,18 +244,22 @@ auto Vulkan::Engine::init_commands() -> void
 
 auto Vulkan::Engine::init_sync_structures() -> void 
 {
-  VkFenceCreateInfo fence_create_info {Vulkan::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT)};
-  VkSemaphoreCreateInfo semaphore_create_info {Vulkan::semaphore_create_info()};
+  VkFenceCreateInfo fenceCreateInfo {Vulkan::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT)};
+  VkSemaphoreCreateInfo semaphoreCreateInfo {Vulkan::semaphore_create_info()};
 
   for(auto& frame : frames)
   {
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fence_create_info, nullptr, &frame.render_fence)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fenceCreateInfo, nullptr, &frame.render_fence)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.swapchain_semaphore)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frame.swapchain_semaphore)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
-    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr, &frame.render_semaphore)); !vk_res.has_value())
+    if(const auto vk_res = Vulkan::Error::vk_check(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frame.render_semaphore)); !vk_res.has_value())
       std::runtime_error(vk_res.error());
   }
+
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateFence(device, &fenceCreateInfo, nullptr, &immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  mainDeletionQueue.push_function([this]{vkDestroyFence(device, immFence, nullptr);});
 }
 
 auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
@@ -289,7 +310,7 @@ auto Vulkan::Engine::cleanup() -> void
       vkDestroySemaphore(device, frame.swapchain_semaphore, nullptr);
     }
 
-    deletion_queue.flush();
+    mainDeletionQueue.flush();
   }
   else 
     std::println("Vulkan is not initialised for cleanup!");
@@ -338,9 +359,13 @@ auto Vulkan::Engine::draw() -> void
 
   Vulkan::Util::copy_image_to_image(cmd, drawImage.image, swapchainImages[swapchainImageIndex], drawExtent, swapchain_extent);
 
-  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-  //
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+  //draw_imgui(cmd, swapchainImageViews[swapchainImageIndex]);
+
+  Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+  
+  //
   if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(get_current_frame().main_command_buffer)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
   // End
@@ -401,8 +426,121 @@ auto Vulkan::Engine::init_descriptors() -> void
   };
   
   vkUpdateDescriptorSets(device, 1, &drawImageWrite, 0, nullptr);
-  deletion_queue.push_function([&]{
+  mainDeletionQueue.push_function([&]{
         globalDescriptorAllocator.destroy_pool(device);
         vkDestroyDescriptorSetLayout(device, drawImageDescriptorLayout, nullptr);
       });
+}
+
+auto Vulkan::Engine::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) -> void
+{
+  if(const auto vk_res = Vulkan::Error::vk_check(vkResetFences(device, 1, &immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkResetCommandBuffer(immCommandBuffer, 0)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  VkCommandBuffer cmd {};
+
+  VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+
+  function(cmd);
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkEndCommandBuffer(cmd)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  VkCommandBufferSubmitInfo cmdInfo {Vulkan::command_buffer_submit_info(cmd)};
+  VkSubmitInfo2 submit {Vulkan::submit_info(&cmdInfo, nullptr, nullptr)};
+  
+  if(const auto vk_res = Vulkan::Error::vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, immFence)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  constexpr auto TIMEOUT {9999999999};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, 1, &immFence, true, TIMEOUT)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+}
+
+auto Vulkan::Engine::init_imgui(Window::Instance& application_window) -> void 
+{
+  constexpr auto pool_sizes = std::to_array<VkDescriptorPoolSize>({
+      {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+      {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+      {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+      {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+      {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+      {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000},
+  });
+  
+  VkDescriptorPoolCreateInfo pool_info {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+    .maxSets = 1000,
+    .poolSizeCount = static_cast<std::uint32_t>(pool_sizes.size()),
+    .pPoolSizes = pool_sizes.data(),
+  };
+
+  VkDescriptorPool imguiPool{};
+  if(const auto vk_res = Vulkan::Error::vk_check(vkCreateDescriptorPool(device, &pool_info, nullptr, &imguiPool)); !vk_res.has_value())
+    throw std::runtime_error(vk_res.error());
+  
+  // Creating the ImGui context:
+  ImGui::CreateContext();
+  
+  ImGui_ImplSDL3_InitForVulkan(application_window.get_window_instance());
+
+  ImGui_ImplVulkan_InitInfo init_info {
+    .Instance = instance,
+    .PhysicalDevice = chosen_gpu,
+    .Device = device,
+    .Queue = graphics_queue,
+    .DescriptorPool = imguiPool,
+    .MinImageCount = 3,
+    .ImageCount = 3,
+    .PipelineInfoMain = {
+      .RenderPass = VK_NULL_HANDLE,
+      .Subpass = 0,
+      .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
+    },
+    .UseDynamicRendering = true,
+  };
+  
+  ImGui_ImplVulkan_Init(&init_info);
+  mainDeletionQueue.push_function([=, this]{
+      ImGui_ImplVulkan_Shutdown();
+      vkDestroyDescriptorPool(device, imguiPool, nullptr);
+      });
+}
+
+auto Vulkan::Engine::draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void
+{
+  VkRenderingAttachmentInfo colorAttachment {Vulkan::attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)};
+  VkRenderingInfo renderInfo {
+    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+    .pNext = nullptr,
+    .flags = 0,
+    .renderArea = {
+      .extent = VkExtent2D {
+        .width = 1280,
+        .height = 720,
+      },
+    },
+    .layerCount = 1,
+    .viewMask = 0,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachment,
+    .pDepthAttachment = nullptr,
+    .pStencilAttachment = nullptr,
+  };
+
+  vkCmdBeginRendering(cmd, &renderInfo);
+  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+  vkCmdEndRendering(cmd);
 }
