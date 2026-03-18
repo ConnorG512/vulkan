@@ -59,10 +59,6 @@ auto Vulkan::Engine::init_background_pipelines() -> void
   const auto shader_path {::Util::get_shader_file_path("gradiant.spv")};
   Vulkan::ShaderModule gradiant{shader_path, device};
   
-  Vulkan::ShaderModule triangle_vert{::Util::get_shader_file_path("triangle.spv"), device};
-  Vulkan::ShaderModule red_frag{::Util::get_shader_file_path("red-fragment.spv"), device};
-
-
   VkPipelineShaderStageCreateInfo stageInfo {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
     .stage = VK_SHADER_STAGE_COMPUTE_BIT,
@@ -86,9 +82,10 @@ auto Vulkan::Engine::init_background_pipelines() -> void
       });
 }
 
-auto init_foreground_pipelines() -> void
+auto Vulkan::Engine::init_foreground_pipelines() -> void
 {
-
+  Vulkan::ShaderModule triangle_vert{::Util::get_shader_file_path("triangle.spv"), device};
+  Vulkan::ShaderModule red_frag{::Util::get_shader_file_path("red-fragment.spv"), device};
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 
