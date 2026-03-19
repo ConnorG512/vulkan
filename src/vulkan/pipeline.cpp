@@ -48,3 +48,30 @@ auto Vulkan::Pipeline::rendering_create_info(
       .stencilAttachmentFormat = depthStencilFormat,
   };
 }
+
+auto Vulkan::Pipeline::graphics_pipeline_create_info(
+    const InfoPointers &infoPointers, VkPipelineLayout pipelineLayout,
+    std::uint32_t flags, void *pNext, std::uint32_t stageCount) noexcept
+    -> VkGraphicsPipelineCreateInfo {
+  return VkGraphicsPipelineCreateInfo{
+      .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+      .pNext = pNext,
+      .flags = flags,
+      .stageCount = stageCount,
+      .pStages = infoPointers.pStages,
+      .pVertexInputState = infoPointers.pVetexInputState,
+      .pInputAssemblyState = infoPointers.pInputAssemblyState,
+      .pTessellationState = infoPointers.pTessellationState,
+      .pViewportState = infoPointers.pViewportState,
+      .pRasterizationState = infoPointers.pRasterizationState,
+      .pMultisampleState = infoPointers.pMultisampleState,
+      .pDepthStencilState = infoPointers.pDepthStencilState,
+      .pColorBlendState = infoPointers.pColorBlendState,
+      .pDynamicState = infoPointers.pDynamicState,
+      .layout = pipelineLayout,
+      .renderPass = VK_NULL_HANDLE,
+      .subpass = 0,
+      .basePipelineHandle = VK_NULL_HANDLE,
+      .basePipelineIndex = -1,
+  };
+}

@@ -1,6 +1,7 @@
+#pragma once
+
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
-#pragma one
 
 namespace Vulkan::Pipeline {
 auto create_compute_pipeline(VkShaderModule computeShader,
@@ -14,4 +15,23 @@ auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
 auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
                            std::uint32_t colorAttachmentCount = 1) noexcept
     -> VkPipelineRenderingCreateInfo;
+
+struct InfoPointers {
+  const VkPipelineShaderStageCreateInfo *pStages = nullptr;
+  const VkPipelineVertexInputStateCreateInfo *pVetexInputState = nullptr;
+  const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState = nullptr;
+  const VkPipelineTessellationStateCreateInfo *pTessellationState = nullptr;
+  const VkPipelineViewportStateCreateInfo *pViewportState = nullptr;
+  const VkPipelineRasterizationStateCreateInfo *pRasterizationState = nullptr;
+  const VkPipelineMultisampleStateCreateInfo *pMultisampleState = nullptr;
+  const VkPipelineDepthStencilStateCreateInfo *pDepthStencilState = nullptr;
+  const VkPipelineColorBlendStateCreateInfo *pColorBlendState = nullptr;
+  const VkPipelineDynamicStateCreateInfo *pDynamicState = nullptr;
+};
+auto graphics_pipeline_create_info(const InfoPointers &infoPointers,
+                                   VkPipelineLayout pipelineLayout,
+                                   std::uint32_t flags = 0,
+                                   void *pNext = nullptr,
+                                   std::uint32_t stageCount = 1) noexcept
+    -> VkGraphicsPipelineCreateInfo;
 } // namespace Vulkan::Pipeline
