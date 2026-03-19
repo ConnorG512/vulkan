@@ -63,11 +63,10 @@ auto Vulkan::Pipeline::create_shader_stage_info(
   };
 }
 
-auto input_assembly_create_info(
-    void *pNext = nullptr, VkPipelineInputAssemblyStateCreateFlags flags = 0,
-    VkPrimitiveTopology topology =
-        VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-    VkBool32 primitiveRestartEnable = VK_FALSE)
+auto input_assembly_create_info(void *pNext,
+                                VkPipelineInputAssemblyStateCreateFlags flags,
+                                VkPrimitiveTopology topology,
+                                VkBool32 primitiveRestartEnable)
     -> VkPipelineInputAssemblyStateCreateInfo {
 
   return {
