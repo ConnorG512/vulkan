@@ -11,4 +11,7 @@ auto create_compute_pipeline(VkShaderModule computeShader,
 auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
                                  std::uint32_t setLayoutCount = 1) noexcept
     -> VkPipelineLayoutCreateInfo;
+auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
+                           std::uint32_t colorAttachmentCount = 1) noexcept
+    -> VkPipelineRenderingCreateInfo;
 } // namespace Vulkan::Pipeline
