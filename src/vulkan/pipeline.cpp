@@ -63,7 +63,7 @@ auto Vulkan::Pipeline::create_shader_stage_info(
   };
 }
 
-auto input_assembly_create_info(void *pNext,
+auto Vulkan::Pipeline::input_assembly_create_info(void *pNext,
                                 VkPipelineInputAssemblyStateCreateFlags flags,
                                 VkPrimitiveTopology topology,
                                 VkBool32 primitiveRestartEnable)
@@ -78,14 +78,14 @@ auto input_assembly_create_info(void *pNext,
   };
 }
 
-auto rasterization_state_create_info()
+auto Vulkan::Pipeline::rasterization_state_create_info()
     -> VkPipelineRasterizationStateCreateInfo {
   return {};
 }
-auto colour_blend_state_create_info() -> VkPipelineColorBlendStateCreateInfo {
+auto Vulkan::Pipeline::colour_blend_state_create_info() -> VkPipelineColorBlendStateCreateInfo {
   return {};
 }
-auto multisample_state_create_info() -> VkPipelineMultisampleStateCreateInfo {
+auto Vulkan::Pipeline::multisample_state_create_info() -> VkPipelineMultisampleStateCreateInfo {
   return {};
 }
 
