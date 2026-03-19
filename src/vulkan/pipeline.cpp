@@ -50,28 +50,44 @@ auto Vulkan::Pipeline::rendering_create_info(
   };
 }
 
-auto Vulkan::Pipeline::create_shader_stage_info(ShaderType shaderType) -> VkPipelineShaderStageCreateInfo
-{
-  const auto chosenShaderType = [shaderType]{
-    if(shaderType == ShaderType::vertex)
-      return VK_SHADER_STAGE_VERTEX_BIT;
-    else if (shaderType == ShaderType::compute)
-      return VK_SHADER_STAGE_COMPUTE_BIT;
-    else if (shaderType == ShaderType::fragment)
-      return VK_SHADER_STAGE_FRAGMENT_BIT;
-    else 
-      std::unreachable();
-  }(); 
-  
+auto Vulkan::Pipeline::create_shader_stage_info(
+    VkShaderStageFlagBits shaderStage) -> VkPipelineShaderStageCreateInfo {
   return {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-    .pNext = nullptr,
-    .flags = 0,
-    .stage = chosenShaderType,
-    .module = {},
-    .pName = "main",
-    .pSpecializationInfo = nullptr,
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+      .pNext = nullptr,
+      .flags = 0,
+      .stage = shaderStage,
+      .module = {},
+      .pName = "main",
+      .pSpecializationInfo = nullptr,
   };
+}
+
+auto input_assembly_create_info(
+    void *pNext = nullptr, VkPipelineInputAssemblyStateCreateFlags flags = 0,
+    VkPrimitiveTopology topology =
+        VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    VkBool32 primitiveRestartEnable = VK_FALSE)
+    -> VkPipelineInputAssemblyStateCreateInfo {
+
+  return {
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+      .pNext = pNext,
+      .flags = flags,
+      .topology = {},
+      .primitiveRestartEnable = VK_FALSE,
+  };
+}
+
+auto rasterization_state_create_info()
+    -> VkPipelineRasterizationStateCreateInfo {
+  return {};
+}
+auto colour_blend_state_create_info() -> VkPipelineColorBlendStateCreateInfo {
+  return {};
+}
+auto multisample_state_create_info() -> VkPipelineMultisampleStateCreateInfo {
+  return {};
 }
 
 auto Vulkan::Pipeline::graphics_pipeline_create_info(

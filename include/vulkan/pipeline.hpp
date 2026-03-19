@@ -16,13 +16,24 @@ auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
                            std::uint32_t colorAttachmentCount = 1) noexcept
     -> VkPipelineRenderingCreateInfo;
 
+auto input_assembly_create_info(
+    void *pNext = nullptr, VkPipelineInputAssemblyStateCreateFlags flags = 0,
+    VkPrimitiveTopology topology =
+        VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+    VkBool32 primitiveRestartEnable = VK_FALSE)
+    -> VkPipelineInputAssemblyStateCreateInfo;
+
+auto rasterization_state_create_info() -> VkPipelineRasterizationStateCreateInfo;
+auto colour_blend_state_create_info() -> VkPipelineColorBlendStateCreateInfo;
+auto multisample_state_create_info() -> VkPipelineMultisampleStateCreateInfo;
+
 enum class ShaderType 
 {
   vertex,
   fragment,
   compute,
 };
-auto create_shader_stage_info(ShaderType shaderType) -> VkPipelineShaderStageCreateInfo;
+auto create_shader_stage_info(VkShaderStageFlagBits shaderStage) -> VkPipelineShaderStageCreateInfo;
 
 struct InfoPointers {
   const VkPipelineShaderStageCreateInfo *pStages = nullptr;
