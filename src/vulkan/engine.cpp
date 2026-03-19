@@ -86,6 +86,7 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
 {
   Vulkan::ShaderModule triangle_vert{::Util::get_shader_file_path("triangle.spv"), device};
   Vulkan::ShaderModule red_frag{::Util::get_shader_file_path("red-fragment.spv"), device};
+  
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 
@@ -319,7 +320,7 @@ auto Vulkan::Engine::draw() -> void
 {
   constexpr auto FENCE_COUNT {1};
   constexpr auto ONE_SECOND {1000000000};
-
+  
   if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, FENCE_COUNT, &get_current_frame().render_fence, true, ONE_SECOND)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
     
@@ -385,6 +386,11 @@ auto Vulkan::Engine::draw() -> void
       throw std::runtime_error(vk_res.error());
 
   frame_number++;
+}
+
+auto draw_dynamic() -> void
+{
+
 }
 
 auto Vulkan::Engine::init_descriptors() -> void 
