@@ -1,5 +1,6 @@
 #include "vulkan/pipeline.hpp"
 #include <cassert>
+#include <utility>
 #include <vulkan/vulkan_core.h>
 
 auto Vulkan::Pipeline::create_compute_pipeline(VkShaderModule computeShader,
@@ -46,6 +47,30 @@ auto Vulkan::Pipeline::rendering_create_info(
       .pColorAttachmentFormats = nullptr,
       .depthAttachmentFormat = depthStencilFormat,
       .stencilAttachmentFormat = depthStencilFormat,
+  };
+}
+
+auto Vulkan::Pipeline::create_shader_stage_info(ShaderType shaderType) -> VkPipelineShaderStageCreateInfo
+{
+  const auto chosenShaderType = [shaderType]{
+    if(shaderType == ShaderType::vertex)
+      return VK_SHADER_STAGE_VERTEX_BIT;
+    else if (shaderType == ShaderType::compute)
+      return VK_SHADER_STAGE_COMPUTE_BIT;
+    else if (shaderType == ShaderType::fragment)
+      return VK_SHADER_STAGE_FRAGMENT_BIT;
+    else 
+      std::unreachable();
+  }(); 
+  
+  return {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+    .pNext = nullptr,
+    .flags = 0,
+    .stage = chosenShaderType,
+    .module = {},
+    .pName = "main",
+    .pSpecializationInfo = nullptr,
   };
 }
 

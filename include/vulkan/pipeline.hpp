@@ -16,6 +16,14 @@ auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
                            std::uint32_t colorAttachmentCount = 1) noexcept
     -> VkPipelineRenderingCreateInfo;
 
+enum class ShaderType 
+{
+  vertex,
+  fragment,
+  compute,
+};
+auto create_shader_stage_info(ShaderType shaderType) -> VkPipelineShaderStageCreateInfo;
+
 struct InfoPointers {
   const VkPipelineShaderStageCreateInfo *pStages = nullptr;
   const VkPipelineVertexInputStateCreateInfo *pVetexInputState = nullptr;
