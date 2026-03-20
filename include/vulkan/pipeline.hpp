@@ -5,19 +5,19 @@
 #include <vulkan/vulkan_core.h>
 
 namespace Vulkan::Pipeline {
-auto create_compute_pipeline(VkShaderModule computeShader,
+[[nodiscard]] auto create_compute_pipeline(VkShaderModule computeShader,
                              VkPipelineLayout pipelineLayout,
                              const char *pName = "main") noexcept
     -> VkComputePipelineCreateInfo;
 
-auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
+[[nodiscard]] auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
                                  std::uint32_t setLayoutCount = 1) noexcept
     -> VkPipelineLayoutCreateInfo;
-auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
+[[nodiscard]] auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
                            std::uint32_t colorAttachmentCount = 1) noexcept
     -> VkPipelineRenderingCreateInfo;
 
-auto input_assembly_create_info(
+[[nodiscard]] auto input_assembly_create_info(
     void *pNext = nullptr, VkPipelineInputAssemblyStateCreateFlags flags = 0,
     VkPrimitiveTopology topology =
         VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -35,7 +35,7 @@ struct RasterizationStateSettings {
   float depthBiasClamp = 1.0f;
   float depthBiasSlopeFactor = 1.0f;
 };
-auto rasterization_state_create_info(
+[[nodiscard]] auto rasterization_state_create_info(
     const RasterizationStateSettings &rasterizationStateSettings = {},
     void *pNext = nullptr, VkPipelineLayoutCreateFlags flags = 0) noexcept
     -> VkPipelineRasterizationStateCreateInfo;
@@ -47,7 +47,7 @@ struct BlendStateSettings {
   const VkPipelineColorBlendAttachmentState *pAttachments = nullptr;
   std::array<float, 4> blendConstants = {1.0f, 1.0f, 1.0f, 1.0f};
 };
-auto color_blend_state_create_info(
+[[nodiscard]] auto color_blend_state_create_info(
     const void *pNext = nullptr, VkPipelineColorBlendStateCreateFlags flags = 0,
     const BlendStateSettings &blendStateSettings = {}) noexcept
     -> VkPipelineColorBlendStateCreateInfo;
@@ -60,7 +60,7 @@ struct MultisampleStateSettings {
   VkBool32 alphaToCoverageEnable = VK_FALSE;
   VkBool32 alphaToOneEnable = VK_FALSE;
 };
-auto multisample_state_create_info(
+[[nodiscard]] auto multisample_state_create_info(
     void *pNext = nullptr, VkPipelineMultisampleStateCreateFlags flags = 0,
     const MultisampleStateSettings &multisampleSettings = {}) noexcept
     -> VkPipelineMultisampleStateCreateInfo;
@@ -73,7 +73,7 @@ struct ShaderStageSettings {
   const char *pName{"main"};
   const VkSpecializationInfo *pSpecializationInfo{nullptr};
 };
-auto create_shader_stage_info(
+[[nodiscard]] auto create_shader_stage_info(
     const ShaderStageSettings &shaderStageInfo = {}) noexcept
     -> VkPipelineShaderStageCreateInfo;
 
@@ -97,7 +97,7 @@ struct GraphicsPipelineSettings {
   VkPipeline basePipelineHandle {};
   int32_t basePipelineIndex {0};
 };
-auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
+[[nodiscard]] auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
     -> VkGraphicsPipelineCreateInfo;
 
 struct CreateGraphicsPipelineSettings {
