@@ -48,6 +48,8 @@ namespace Vulkan
       
       VkPipeline gradientPipeLine {};
       VkPipelineLayout gradientPipeLineLayout {};
+      VkPipeline trianglePipeLine {};
+      VkPipelineLayout trianglePipeLineLayout {};
       
       VkFence immFence{};
       VkCommandBuffer immCommandBuffer{};
