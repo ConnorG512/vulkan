@@ -90,7 +90,7 @@ struct GraphicsPipelineSettings {
   VkPipelineCreateFlags flags {0};
   std::uint32_t stageCount {2};
   const VkPipelineShaderStageCreateInfo *pStages {nullptr};
-  const VkPipelineVertexInputStateCreateInfo *pVetexInputState {nullptr};
+  const VkPipelineVertexInputStateCreateInfo *pVertexInputState {nullptr};
   const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState {nullptr};
   const VkPipelineTessellationStateCreateInfo *pTessellationState {nullptr};
   const VkPipelineViewportStateCreateInfo *pViewportState {nullptr};
@@ -105,7 +105,6 @@ struct GraphicsPipelineSettings {
   VkPipeline basePipelineHandle {};
   int32_t basePipelineIndex {0};
 };
-
 [[nodiscard]] auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
     -> VkGraphicsPipelineCreateInfo;
 
@@ -117,6 +116,7 @@ struct CreateGraphicsPipelineSettings {
   const VkAllocationCallbacks *pAllocator{nullptr};
   VkPipeline *pPipeline{nullptr};
 };
+
 [[nodiscard]] auto create_graphics_pipelines(
     const CreateGraphicsPipelineSettings &graphicsPipelineSettings = {})
     -> VkResult;

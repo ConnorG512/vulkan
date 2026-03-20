@@ -139,7 +139,7 @@ auto Vulkan::Pipeline::graphics_pipeline_create_info(
       .flags = gPSettings.flags,
       .stageCount = gPSettings.stageCount,
       .pStages = gPSettings.pStages,
-      .pVertexInputState = gPSettings.pVetexInputState,
+      .pVertexInputState = gPSettings.pVertexInputState,
       .pInputAssemblyState = gPSettings.pInputAssemblyState,
       .pTessellationState = gPSettings.pTessellationState,
       .pViewportState = gPSettings.pViewportState,
