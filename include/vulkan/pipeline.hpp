@@ -41,7 +41,7 @@ struct RasterizationStateSettings {
     -> VkPipelineRasterizationStateCreateInfo;
 
 struct BlendStateSettings {
-  VkBool32 logicOpEnable = VK_TRUE;
+  VkBool32 logicOpEnable = VK_FALSE;
   VkLogicOp logicOp = VK_LOGIC_OP_NO_OP;
   std::uint32_t attachmentCount = 1;
   const VkPipelineColorBlendAttachmentState *pAttachments = nullptr;
