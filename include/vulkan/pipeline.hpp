@@ -102,7 +102,7 @@ struct GraphicsPipelineSettings {
 
 struct CreateGraphicsPipelineSettings {
   VkDevice device{};
-  VkPipelineCache pipelineCache{};
+  VkPipelineCache pipelineCache{VK_NULL_HANDLE};
   uint32_t createInfoCount{1};
   const VkGraphicsPipelineCreateInfo *pCreateInfos{nullptr};
   const VkAllocationCallbacks *pAllocator{nullptr};
