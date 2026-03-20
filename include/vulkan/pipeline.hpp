@@ -65,7 +65,16 @@ auto multisample_state_create_info(
     const MultisampleStateSettings &multisampleSettings = {}) noexcept
     -> VkPipelineMultisampleStateCreateInfo;
 
-auto create_shader_stage_info(VkShaderStageFlagBits shaderStage) noexcept
+struct ShaderStageSettings {
+  const void *pNext{nullptr};
+  VkPipelineShaderStageCreateFlags flags{0};
+  VkShaderStageFlagBits stage{};
+  VkShaderModule module{};
+  const char *pName{"main"};
+  const VkSpecializationInfo *pSpecializationInfo{nullptr};
+};
+auto create_shader_stage_info(
+    const ShaderStageSettings &shaderStageInfo = {}) noexcept
     -> VkPipelineShaderStageCreateInfo;
 
 struct GraphicsPipelineSettings {
@@ -90,4 +99,16 @@ struct GraphicsPipelineSettings {
 };
 auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
     -> VkGraphicsPipelineCreateInfo;
+
+struct CreateGraphicsPipelineSettings {
+  VkDevice device{};
+  VkPipelineCache pipelineCache{};
+  uint32_t createInfoCount{1};
+  const VkGraphicsPipelineCreateInfo *pCreateInfos{nullptr};
+  const VkAllocationCallbacks *pAllocator{nullptr};
+  VkPipeline *pPipeline{nullptr};
+};
+[[nodiscard]] auto create_graphics_pipelines(
+    const CreateGraphicsPipelineSettings &graphicsPipelineSettings = {})
+    -> VkResult;
 } // namespace Vulkan::Pipeline

@@ -50,16 +50,16 @@ auto Vulkan::Pipeline::rendering_create_info(
 }
 
 auto Vulkan::Pipeline::create_shader_stage_info(
-    VkShaderStageFlagBits shaderStage) noexcept
+    const ShaderStageSettings &shaderStageInfo) noexcept
     -> VkPipelineShaderStageCreateInfo {
   return {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-      .pNext = nullptr,
-      .flags = 0,
-      .stage = shaderStage,
-      .module = {},
-      .pName = "main",
-      .pSpecializationInfo = nullptr,
+      .pNext = shaderStageInfo.pNext,
+      .flags = shaderStageInfo.flags,
+      .stage = shaderStageInfo.stage,
+      .module = shaderStageInfo.module,
+      .pName = shaderStageInfo.pName,
+      .pSpecializationInfo = shaderStageInfo.pSpecializationInfo,
   };
 }
 
@@ -156,4 +156,15 @@ auto Vulkan::Pipeline::graphics_pipeline_create_info(
       .basePipelineHandle = VK_NULL_HANDLE,
       .basePipelineIndex = -1,
   };
+}
+
+[[nodiscard]] auto Vulkan::Pipeline::create_graphics_pipelines(
+    const CreateGraphicsPipelineSettings &graphicsPipelineSettings)
+    -> VkResult {
+
+  return vkCreateGraphicsPipelines(
+      graphicsPipelineSettings.device, graphicsPipelineSettings.pipelineCache,
+      graphicsPipelineSettings.createInfoCount,
+      graphicsPipelineSettings.pCreateInfos,
+      graphicsPipelineSettings.pAllocator, graphicsPipelineSettings.pPipeline);
 }
