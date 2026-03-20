@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 
@@ -19,23 +20,55 @@ auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
 auto input_assembly_create_info(
     void *pNext = nullptr, VkPipelineInputAssemblyStateCreateFlags flags = 0,
     VkPrimitiveTopology topology =
-        VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-    VkBool32 primitiveRestartEnable = VK_FALSE)
+        VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    VkBool32 primitiveRestartEnable = VK_FALSE) noexcept
     -> VkPipelineInputAssemblyStateCreateInfo;
 
-auto rasterization_state_create_info() -> VkPipelineRasterizationStateCreateInfo;
-auto colour_blend_state_create_info() -> VkPipelineColorBlendStateCreateInfo;
-auto multisample_state_create_info() -> VkPipelineMultisampleStateCreateInfo;
-
-enum class ShaderType 
-{
-  vertex,
-  fragment,
-  compute,
+struct RasterizationStateSettings {
+  VkBool32 depthClampEnable = VK_FALSE;
+  VkBool32 rasterizerDiscardEnable = VK_FALSE;
+  VkBool32 depthBiasEnable = VK_FALSE;
+  VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL;
+  VkCullModeFlags cullMode = VK_CULL_MODE_NONE;
+  VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  float depthBiasConstantFactor = 1.0f;
+  float depthBiasClamp = 1.0f;
+  float depthBiasSlopeFactor = 1.0f;
 };
-auto create_shader_stage_info(VkShaderStageFlagBits shaderStage) -> VkPipelineShaderStageCreateInfo;
+auto rasterization_state_create_info(
+    const RasterizationStateSettings &rasterizationStateSettings = {},
+    void *pNext = nullptr, VkPipelineLayoutCreateFlags flags = 0) noexcept
+    -> VkPipelineRasterizationStateCreateInfo;
 
-struct InfoPointers {
+struct BlendStateSettings {
+  VkBool32 logicOpEnable = VK_TRUE;
+  VkLogicOp logicOp = VK_LOGIC_OP_NO_OP;
+  std::uint32_t attachmentCount = 1;
+  const VkPipelineColorBlendAttachmentState *pAttachments = nullptr;
+  std::array<float, 4> blendConstants = {1.0f, 1.0f, 1.0f, 1.0f};
+};
+auto color_blend_state_create_info(
+    const void *pNext = nullptr, VkPipelineColorBlendStateCreateFlags flags = 0,
+    const BlendStateSettings &blendStateSettings = {}) noexcept
+    -> VkPipelineColorBlendStateCreateInfo;
+
+struct MultisampleStateSettings {
+  VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_32_BIT;
+  VkBool32 sampleShadingEnable = VK_FALSE;
+  float minSampleShading = 1.0f;
+  const VkSampleMask *pSampleMask = nullptr;
+  VkBool32 alphaToCoverageEnable = VK_FALSE;
+  VkBool32 alphaToOneEnable = VK_FALSE;
+};
+auto multisample_state_create_info(
+    void *pNext = nullptr, VkPipelineMultisampleStateCreateFlags flags = 0,
+    const MultisampleStateSettings &multisampleSettings = {}) noexcept
+    -> VkPipelineMultisampleStateCreateInfo;
+
+auto create_shader_stage_info(VkShaderStageFlagBits shaderStage) noexcept
+    -> VkPipelineShaderStageCreateInfo;
+
+struct GPCreateInfoPointers {
   const VkPipelineShaderStageCreateInfo *pStages = nullptr;
   const VkPipelineVertexInputStateCreateInfo *pVetexInputState = nullptr;
   const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState = nullptr;
@@ -47,10 +80,10 @@ struct InfoPointers {
   const VkPipelineColorBlendStateCreateInfo *pColorBlendState = nullptr;
   const VkPipelineDynamicStateCreateInfo *pDynamicState = nullptr;
 };
-auto graphics_pipeline_create_info(const InfoPointers &infoPointers,
+auto graphics_pipeline_create_info(const GPCreateInfoPointers &infoPointers,
                                    VkPipelineLayout pipelineLayout,
                                    std::uint32_t flags = 0,
                                    void *pNext = nullptr,
-                                   std::uint32_t stageCount = 1) noexcept
+                                   std::uint32_t stageCount = 2) noexcept
     -> VkGraphicsPipelineCreateInfo;
 } // namespace Vulkan::Pipeline
