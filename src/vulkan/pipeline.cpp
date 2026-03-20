@@ -133,25 +133,24 @@ auto Vulkan::Pipeline::multisample_state_create_info(
 }
 
 auto Vulkan::Pipeline::graphics_pipeline_create_info(
-    const GPCreateInfoPointers &infoPointers, VkPipelineLayout pipelineLayout,
-    std::uint32_t flags, void *pNext, std::uint32_t stageCount) noexcept
+    const GraphicsPipelineSettings &gPSettings) noexcept
     -> VkGraphicsPipelineCreateInfo {
   return VkGraphicsPipelineCreateInfo{
       .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-      .pNext = pNext,
-      .flags = flags,
-      .stageCount = stageCount,
-      .pStages = infoPointers.pStages,
-      .pVertexInputState = infoPointers.pVetexInputState,
-      .pInputAssemblyState = infoPointers.pInputAssemblyState,
-      .pTessellationState = infoPointers.pTessellationState,
-      .pViewportState = infoPointers.pViewportState,
-      .pRasterizationState = infoPointers.pRasterizationState,
-      .pMultisampleState = infoPointers.pMultisampleState,
-      .pDepthStencilState = infoPointers.pDepthStencilState,
-      .pColorBlendState = infoPointers.pColorBlendState,
-      .pDynamicState = infoPointers.pDynamicState,
-      .layout = pipelineLayout,
+      .pNext = gPSettings.pNext,
+      .flags = gPSettings.flags,
+      .stageCount = gPSettings.stageCount,
+      .pStages = gPSettings.pStages,
+      .pVertexInputState = gPSettings.pVetexInputState,
+      .pInputAssemblyState = gPSettings.pInputAssemblyState,
+      .pTessellationState = gPSettings.pTessellationState,
+      .pViewportState = gPSettings.pViewportState,
+      .pRasterizationState = gPSettings.pRasterizationState,
+      .pMultisampleState = gPSettings.pMultisampleState,
+      .pDepthStencilState = gPSettings.pDepthStencilState,
+      .pColorBlendState = gPSettings.pColorBlendState,
+      .pDynamicState = gPSettings.pDynamicState,
+      .layout = gPSettings.layout,
       .renderPass = VK_NULL_HANDLE,
       .subpass = 0,
       .basePipelineHandle = VK_NULL_HANDLE,

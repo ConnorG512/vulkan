@@ -68,22 +68,26 @@ auto multisample_state_create_info(
 auto create_shader_stage_info(VkShaderStageFlagBits shaderStage) noexcept
     -> VkPipelineShaderStageCreateInfo;
 
-struct GPCreateInfoPointers {
-  const VkPipelineShaderStageCreateInfo *pStages = nullptr;
-  const VkPipelineVertexInputStateCreateInfo *pVetexInputState = nullptr;
-  const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState = nullptr;
-  const VkPipelineTessellationStateCreateInfo *pTessellationState = nullptr;
-  const VkPipelineViewportStateCreateInfo *pViewportState = nullptr;
-  const VkPipelineRasterizationStateCreateInfo *pRasterizationState = nullptr;
-  const VkPipelineMultisampleStateCreateInfo *pMultisampleState = nullptr;
-  const VkPipelineDepthStencilStateCreateInfo *pDepthStencilState = nullptr;
-  const VkPipelineColorBlendStateCreateInfo *pColorBlendState = nullptr;
-  const VkPipelineDynamicStateCreateInfo *pDynamicState = nullptr;
+struct GraphicsPipelineSettings {
+  const void *pNext {nullptr};
+  VkPipelineCreateFlags flags {0};
+  std::uint32_t stageCount {2};
+  const VkPipelineShaderStageCreateInfo *pStages {nullptr};
+  const VkPipelineVertexInputStateCreateInfo *pVetexInputState {nullptr};
+  const VkPipelineInputAssemblyStateCreateInfo *pInputAssemblyState {nullptr};
+  const VkPipelineTessellationStateCreateInfo *pTessellationState {nullptr};
+  const VkPipelineViewportStateCreateInfo *pViewportState {nullptr};
+  const VkPipelineRasterizationStateCreateInfo *pRasterizationState {nullptr};
+  const VkPipelineMultisampleStateCreateInfo *pMultisampleState {nullptr};
+  const VkPipelineDepthStencilStateCreateInfo *pDepthStencilState {nullptr};
+  const VkPipelineColorBlendStateCreateInfo *pColorBlendState {nullptr};
+  const VkPipelineDynamicStateCreateInfo *pDynamicState {nullptr};
+  VkPipelineLayout layout {};
+  VkRenderPass renderPass {};
+  uint32_t subpass {0};
+  VkPipeline basePipelineHandle {};
+  int32_t basePipelineIndex {0};
 };
-auto graphics_pipeline_create_info(const GPCreateInfoPointers &infoPointers,
-                                   VkPipelineLayout pipelineLayout,
-                                   std::uint32_t flags = 0,
-                                   void *pNext = nullptr,
-                                   std::uint32_t stageCount = 2) noexcept
+auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
     -> VkGraphicsPipelineCreateInfo;
 } // namespace Vulkan::Pipeline
