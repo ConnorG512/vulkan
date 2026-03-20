@@ -32,20 +32,18 @@ auto Vulkan::Pipeline::create_pipeline_layout_info(
   };
 }
 
-auto Vulkan::Pipeline::rendering_create_info(
-    VkFormat *colorFormat, VkFormat depthStencilFormat,
-    std::uint32_t colorAttachmentCount) noexcept
+auto Vulkan::Pipeline::rendering_create_info(const PipelineRenderingInfoSettings &pipelineRenderingInfoSettings) noexcept
     -> VkPipelineRenderingCreateInfo {
 
-  assert(colorFormat != nullptr);
+  assert(pipelineRenderingInfoSettings.pColorAttachmentFormats != nullptr);
 
   return VkPipelineRenderingCreateInfo{
       .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
-      .pNext = nullptr,
-      .colorAttachmentCount = colorAttachmentCount,
-      .pColorAttachmentFormats = nullptr,
-      .depthAttachmentFormat = depthStencilFormat,
-      .stencilAttachmentFormat = depthStencilFormat,
+      .pNext = pipelineRenderingInfoSettings.pNext,
+      .colorAttachmentCount = pipelineRenderingInfoSettings.colorAttachmentCount,
+      .pColorAttachmentFormats = pipelineRenderingInfoSettings.pColorAttachmentFormats,
+      .depthAttachmentFormat = pipelineRenderingInfoSettings.depthAttachmentFormat,
+      .stencilAttachmentFormat = pipelineRenderingInfoSettings.stencilAttachmentFormat,
   };
 }
 

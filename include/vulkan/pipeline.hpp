@@ -13,8 +13,16 @@ namespace Vulkan::Pipeline {
 [[nodiscard]] auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
                                  std::uint32_t setLayoutCount = 1) noexcept
     -> VkPipelineLayoutCreateInfo;
-[[nodiscard]] auto rendering_create_info(VkFormat *colorFormat, VkFormat depthStencilFormat,
-                           std::uint32_t colorAttachmentCount = 1) noexcept
+
+struct PipelineRenderingInfoSettings {
+  const void *pNext{nullptr};
+  uint32_t viewMask{0};
+  uint32_t colorAttachmentCount{1};
+  const VkFormat *pColorAttachmentFormats{nullptr};
+  VkFormat depthAttachmentFormat{};
+  VkFormat stencilAttachmentFormat{};
+};
+[[nodiscard]] auto rendering_create_info(const PipelineRenderingInfoSettings &pipelineRenderingInfoSettings = {}) noexcept
     -> VkPipelineRenderingCreateInfo;
 
 [[nodiscard]] auto input_assembly_create_info(
@@ -97,6 +105,7 @@ struct GraphicsPipelineSettings {
   VkPipeline basePipelineHandle {};
   int32_t basePipelineIndex {0};
 };
+
 [[nodiscard]] auto graphics_pipeline_create_info(const GraphicsPipelineSettings& gPSettings = {}) noexcept
     -> VkGraphicsPipelineCreateInfo;
 
