@@ -61,7 +61,7 @@ struct BlendStateSettings {
     -> VkPipelineColorBlendStateCreateInfo;
 
 struct MultisampleStateSettings {
-  VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_32_BIT;
+  VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
   VkBool32 sampleShadingEnable = VK_FALSE;
   float minSampleShading = 1.0f;
   const VkSampleMask *pSampleMask = nullptr;
