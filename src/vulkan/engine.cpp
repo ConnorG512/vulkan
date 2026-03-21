@@ -38,8 +38,7 @@ auto Vulkan::Engine::init(Window::Instance& application_window) -> void
   std::println("Initialise complete!");
 }
 
-auto Vulkan::Engine::init_pipelines() -> void
-{
+auto Vulkan::Engine::init_pipelines() -> void {
   init_background_pipelines();
   init_foreground_pipelines();
 }
@@ -84,9 +83,99 @@ auto Vulkan::Engine::init_background_pipelines() -> void
 
 auto Vulkan::Engine::init_foreground_pipelines() -> void
 {
-  Vulkan::ShaderModule triangle_vert{::Util::get_shader_file_path("triangle.spv"), device};
-  Vulkan::ShaderModule red_frag{::Util::get_shader_file_path("red-fragment.spv"), device};
+  // Load Shaders: 
+  Vulkan::ShaderModule triangleVertex{::Util::get_shader_file_path("triangle.spv"), device};
+  Vulkan::ShaderModule triangleFragment{::Util::get_shader_file_path("red-fragment.spv"), device};
+  auto triangleVertexStage {Pipeline::create_shader_stage_info({
+      .stage = VK_SHADER_STAGE_VERTEX_BIT,
+      .module = triangleVertex.get_vk_module(),
+      .pName = "main", 
+      })};
+  auto triangleFragmentStage {Pipeline::create_shader_stage_info({
+      .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+      .module = triangleFragment.get_vk_module(),
+      .pName = "main", 
+      })};
+  const auto pipelineStagesArray = std::to_array({triangleVertexStage, triangleFragmentStage});
   
+  VkPipelineMultisampleStateCreateInfo multisampleState {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+    .pNext = nullptr,
+    .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT, // This MUST be 1
+    .sampleShadingEnable = VK_FALSE,
+    .minSampleShading = 1.0f,
+    .pSampleMask = nullptr,
+    .alphaToCoverageEnable = VK_FALSE,
+    .alphaToOneEnable = VK_FALSE
+  };
+  VkPipelineColorBlendAttachmentState colorBlendAttachmentState {
+    .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+  };
+  VkPipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+    .attachmentCount = 1,
+    .pAttachments = &colorBlendAttachmentState,
+  };
+  VkPipelineShaderStageCreateInfo shaderStageCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+  };
+  VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+  };
+  VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+  };
+  VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+    .polygonMode = VK_POLYGON_MODE_FILL,
+    .lineWidth = 1.0f,
+  };
+
+  const auto dynamicStates = std::to_array({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});
+  VkPipelineDynamicStateCreateInfo dynamicStateStateCreateInfo{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+    .dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
+    .pDynamicStates = dynamicStates.data(),
+  };
+  VkPipelineLayout pipelineLayout{};
+  VkPipelineRenderingCreateInfo renderingCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+    .colorAttachmentCount = 1,
+    .pColorAttachmentFormats = &swapchain_image_format,
+  };
+  VkPipelineViewportStateCreateInfo viewportStateCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+    .viewportCount = 1,
+    .scissorCount = 1,
+  };
+  
+  VkPipelineLayoutCreateInfo layoutInfo{
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+  };
+  
+  std::println("Pipeline layout result: {}.", static_cast<std::uint32_t>(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &trianglePipeLineLayout)));
+
+  VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+    .pNext = &renderingCreateInfo,
+    .flags = 0,
+    .stageCount = 2, 
+    .pStages = pipelineStagesArray.data(),
+    .pVertexInputState = &vertexInputStateCreateInfo,
+    .pInputAssemblyState = &inputAssemblyStateCreateInfo,
+    .pTessellationState = nullptr,
+    .pViewportState = &viewportStateCreateInfo,
+    .pRasterizationState = &rasterizationStateCreateInfo,
+    .pMultisampleState = &multisampleState,
+    .pDepthStencilState = nullptr,
+    .pColorBlendState = &colorBlendStateCreateInfo,
+    .pDynamicState = &dynamicStateStateCreateInfo,
+    .layout = trianglePipeLineLayout,
+  };
+  
+  const auto pipeline_res {vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &trianglePipeLine)};
+  std::println("Pipeline result: {}", static_cast<std::uint32_t>(pipeline_res));
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 
@@ -258,7 +347,7 @@ auto Vulkan::Engine::init_sync_structures() -> void
 auto Vulkan::Engine::create_swapchain(uint32_t width, uint32_t height) -> void
 {
   vkb::SwapchainBuilder swapchainBuilder{chosen_gpu, device, surface};
-  swapchain_image_format = VK_FORMAT_B8G8R8_UNORM;
+  swapchain_image_format = VK_FORMAT_B8G8R8A8_UNORM;
   vkb::Swapchain vkbSwapchain = swapchainBuilder 
     .set_desired_format(VkSurfaceFormatKHR{.format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR})
     .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
@@ -341,7 +430,7 @@ auto Vulkan::Engine::draw() -> void
   VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
   if(const auto vk_res = Vulkan::Error::vk_check(vkBeginCommandBuffer(cmd, &cmdBeginInfo)); !vk_res.has_value())
     throw std::runtime_error(vk_res.error());
-
+  
   // Buffer Commands
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
   
@@ -388,9 +477,13 @@ auto Vulkan::Engine::draw() -> void
   frame_number++;
 }
 
-auto draw_dynamic() -> void
+auto Vulkan::Engine::draw_dynamic() -> void
 {
-
+  const auto cmd {get_current_frame().main_command_buffer};
+  VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
+  
+  vkBeginCommandBuffer(cmd, &cmdBeginInfo);
+  vkEndCommandBuffer(get_current_frame().main_command_buffer);
 }
 
 auto Vulkan::Engine::init_descriptors() -> void 
