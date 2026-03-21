@@ -128,13 +128,18 @@ auto Vulkan::Pipeline::color_blend_state_create_info(
 }
 
 auto Vulkan::Pipeline::multisample_state_create_info(
-    void *pNext, VkPipelineMultisampleStateCreateFlags flags,
     const MultisampleStateSettings &multisampleSettings) noexcept
     -> VkPipelineMultisampleStateCreateInfo {
   return {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-      .pNext = pNext,
-      .flags = flags,
+      .pNext = multisampleSettings.pNext,
+      .flags = multisampleSettings.flags,
+      .rasterizationSamples = multisampleSettings.rasterizationSamples,
+      .sampleShadingEnable = multisampleSettings.sampleShadingEnable,
+      .minSampleShading = multisampleSettings.minSampleShading,
+      .pSampleMask = multisampleSettings.pSampleMask,
+      .alphaToCoverageEnable = multisampleSettings.alphaToCoverageEnable,
+      .alphaToOneEnable = multisampleSettings.alphaToOneEnable,
   };
 }
 
