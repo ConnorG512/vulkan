@@ -10,8 +10,7 @@ namespace Vulkan::Pipeline {
                              const char *pName = "main") noexcept
     -> VkComputePipelineCreateInfo;
 
-[[nodiscard]] auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
-                                 std::uint32_t setLayoutCount = 1) noexcept
+[[nodiscard]] auto create_pipeline_layout_info() noexcept
     -> VkPipelineLayoutCreateInfo;
 
 struct PipelineRenderingInfoSettings {
@@ -61,6 +60,8 @@ struct BlendStateSettings {
     -> VkPipelineColorBlendStateCreateInfo;
 
 struct MultisampleStateSettings {
+  void* pNext = nullptr;
+  VkPipelineMultisampleStateCreateFlags flags = 0;
   VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
   VkBool32 sampleShadingEnable = VK_FALSE;
   float minSampleShading = 1.0f;
@@ -69,7 +70,6 @@ struct MultisampleStateSettings {
   VkBool32 alphaToOneEnable = VK_FALSE;
 };
 [[nodiscard]] auto multisample_state_create_info(
-    void *pNext = nullptr, VkPipelineMultisampleStateCreateFlags flags = 0,
     const MultisampleStateSettings &multisampleSettings = {}) noexcept
     -> VkPipelineMultisampleStateCreateInfo;
 

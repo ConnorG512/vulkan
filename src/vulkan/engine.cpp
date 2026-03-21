@@ -99,14 +99,7 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
   const auto pipelineStagesArray = std::to_array({triangleVertexStage, triangleFragmentStage});
   
   VkPipelineMultisampleStateCreateInfo multisampleState {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-    .pNext = nullptr,
-    .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT, // This MUST be 1
-    .sampleShadingEnable = VK_FALSE,
-    .minSampleShading = 1.0f,
-    .pSampleMask = nullptr,
-    .alphaToCoverageEnable = VK_FALSE,
-    .alphaToOneEnable = VK_FALSE
+    Pipeline::multisample_state_create_info()
   };
   VkPipelineColorBlendAttachmentState colorBlendAttachmentState {
     .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
@@ -115,9 +108,6 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
     .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
     .attachmentCount = 1,
     .pAttachments = &colorBlendAttachmentState,
-  };
-  VkPipelineShaderStageCreateInfo shaderStageCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
   };
   VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -151,7 +141,7 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
   };
   
   VkPipelineLayoutCreateInfo layoutInfo{
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+    Pipeline::create_pipeline_layout_info()
   };
   
   std::println("Pipeline layout result: {}.", static_cast<std::uint32_t>(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &trianglePipeLineLayout)));

@@ -22,13 +22,14 @@ auto Vulkan::Pipeline::create_compute_pipeline(VkShaderModule computeShader,
 }
 
 auto Vulkan::Pipeline::create_pipeline_layout_info(
-    const VkDescriptorSetLayout &setLayout,
-    std::uint32_t setLayoutCount) noexcept -> VkPipelineLayoutCreateInfo {
+) noexcept -> VkPipelineLayoutCreateInfo {
   return VkPipelineLayoutCreateInfo{
       .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
       .pNext = nullptr,
-      .setLayoutCount = setLayoutCount,
-      .pSetLayouts = &setLayout,
+      .setLayoutCount = {},
+      .pSetLayouts = nullptr,
+      .pushConstantRangeCount = 0,
+      .pPushConstantRanges = nullptr,
   };
 }
 
@@ -50,7 +51,8 @@ auto Vulkan::Pipeline::rendering_create_info(const PipelineRenderingInfoSettings
 auto Vulkan::Pipeline::create_shader_stage_info(
     const ShaderStageSettings &shaderStageInfo) noexcept
     -> VkPipelineShaderStageCreateInfo {
-  return {
+  
+    const VkPipelineShaderStageCreateInfo result {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
       .pNext = shaderStageInfo.pNext,
       .flags = shaderStageInfo.flags,
@@ -58,7 +60,14 @@ auto Vulkan::Pipeline::create_shader_stage_info(
       .module = shaderStageInfo.module,
       .pName = shaderStageInfo.pName,
       .pSpecializationInfo = shaderStageInfo.pSpecializationInfo,
-  };
+    };
+    
+    /*
+      https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderStageFlagBits.html
+      Smallest valid value for shader is 1, should never be 0 and will be invalid if default initialised with 0.
+    */
+    assert(result.stage != 0);
+    return result;
 }
 
 auto Vulkan::Pipeline::input_assembly_create_info(
@@ -120,13 +129,18 @@ auto Vulkan::Pipeline::color_blend_state_create_info(
 }
 
 auto Vulkan::Pipeline::multisample_state_create_info(
-    void *pNext, VkPipelineMultisampleStateCreateFlags flags,
     const MultisampleStateSettings &multisampleSettings) noexcept
     -> VkPipelineMultisampleStateCreateInfo {
   return {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-      .pNext = pNext,
-      .flags = flags,
+      .pNext = multisampleSettings.pNext,
+      .flags = multisampleSettings.flags,
+      .rasterizationSamples = multisampleSettings.rasterizationSamples,
+      .sampleShadingEnable = multisampleSettings.sampleShadingEnable,
+      .minSampleShading = multisampleSettings.minSampleShading,
+      .pSampleMask = multisampleSettings.pSampleMask,
+      .alphaToCoverageEnable = multisampleSettings.alphaToCoverageEnable,
+      .alphaToOneEnable = multisampleSettings.alphaToOneEnable,
   };
 }
 
