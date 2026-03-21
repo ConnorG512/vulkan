@@ -117,7 +117,7 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
     .pAttachments = &colorBlendAttachmentState,
   };
   VkPipelineShaderStageCreateInfo shaderStageCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+    Pipeline::create_shader_stage_info()
   };
   VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
