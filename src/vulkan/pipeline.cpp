@@ -50,7 +50,8 @@ auto Vulkan::Pipeline::rendering_create_info(const PipelineRenderingInfoSettings
 auto Vulkan::Pipeline::create_shader_stage_info(
     const ShaderStageSettings &shaderStageInfo) noexcept
     -> VkPipelineShaderStageCreateInfo {
-  return {
+  
+    const VkPipelineShaderStageCreateInfo result {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
       .pNext = shaderStageInfo.pNext,
       .flags = shaderStageInfo.flags,
@@ -58,7 +59,14 @@ auto Vulkan::Pipeline::create_shader_stage_info(
       .module = shaderStageInfo.module,
       .pName = shaderStageInfo.pName,
       .pSpecializationInfo = shaderStageInfo.pSpecializationInfo,
-  };
+    };
+    
+    /*
+      https://docs.vulkan.org/refpages/latest/refpages/source/VkShaderStageFlagBits.html
+      Smallest valid value for shader is 1, should never be 0 and will be invalid if default initialised with 0.
+    */
+    assert(result.stage != 0);
+    return result;
 }
 
 auto Vulkan::Pipeline::input_assembly_create_info(
