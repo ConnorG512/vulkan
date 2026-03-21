@@ -10,8 +10,7 @@ namespace Vulkan::Pipeline {
                              const char *pName = "main") noexcept
     -> VkComputePipelineCreateInfo;
 
-[[nodiscard]] auto create_pipeline_layout_info(const VkDescriptorSetLayout &setLayout,
-                                 std::uint32_t setLayoutCount = 1) noexcept
+[[nodiscard]] auto create_pipeline_layout_info() noexcept
     -> VkPipelineLayoutCreateInfo;
 
 struct PipelineRenderingInfoSettings {

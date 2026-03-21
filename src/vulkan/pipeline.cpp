@@ -22,13 +22,14 @@ auto Vulkan::Pipeline::create_compute_pipeline(VkShaderModule computeShader,
 }
 
 auto Vulkan::Pipeline::create_pipeline_layout_info(
-    const VkDescriptorSetLayout &setLayout,
-    std::uint32_t setLayoutCount) noexcept -> VkPipelineLayoutCreateInfo {
+) noexcept -> VkPipelineLayoutCreateInfo {
   return VkPipelineLayoutCreateInfo{
       .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
       .pNext = nullptr,
-      .setLayoutCount = setLayoutCount,
-      .pSetLayouts = &setLayout,
+      .setLayoutCount = {},
+      .pSetLayouts = nullptr,
+      .pushConstantRangeCount = 0,
+      .pPushConstantRanges = nullptr,
   };
 }
 
