@@ -3,6 +3,7 @@
 #include "file-util.hpp"
 #include "vulkan/descriptors.hpp"
 #include "vulkan/initializer.hpp"
+#include "vulkan/rendering.hpp"
 #include "vulkan/util.hpp"
 #include "window.hpp"
 #include "vulkan/error-handler.hpp"
@@ -428,13 +429,7 @@ auto Vulkan::Engine::draw() -> void
   draw_background(cmd);
 
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-  VkRenderingAttachmentInfo colorAttachment {
-    .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-    .imageView = drawImage.imageView,
-    .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-  };
+  VkRenderingAttachmentInfo colorAttachment { Vulkan::Rendering::create_rendering_attachment_info({.imageView = drawImage.imageView})};
   VkRenderingInfo renderingInfo{
     .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
     .renderArea = {{0,0}, {drawExtent.width, drawExtent.height}},
