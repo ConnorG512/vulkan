@@ -18,10 +18,3 @@ auto Vulkan::Rendering::create_rendering_attachment_info(
 
   return result;
 }
-
-auto Vulkan::Rendering::create_rendering_info() -> VkRenderingInfo {
-  const VkRenderingInfo result{
-
-  };
-  return result;
-}

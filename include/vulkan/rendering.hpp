@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <vulkan/vulkan_core.h>
+#include <cstdint>
+
 namespace Vulkan::Rendering 
 {
 struct RenderingAttachmentSettings {
@@ -15,7 +17,4 @@ struct RenderingAttachmentSettings {
   VkClearValue clearValue = {};
 };
 auto create_rendering_attachment_info(const RenderingAttachmentSettings& renderingAttachmentSettings = {}) -> VkRenderingAttachmentInfo;
-
-struct RenderingSettings {};
-auto create_rendering_info() -> VkRenderingInfo;
 }
