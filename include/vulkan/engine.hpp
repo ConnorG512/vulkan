@@ -75,7 +75,6 @@ namespace Vulkan
       auto init_sync_structures() -> void;
       auto cleanup() -> void;
       auto draw() -> void;
-      auto draw_dynamic() -> void;
       auto draw_background(VkCommandBuffer cmd) -> void;
 
       auto immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) -> void;

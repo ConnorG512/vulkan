@@ -499,15 +499,6 @@ auto Vulkan::Engine::draw() -> void
   frame_number++;
 }
 
-auto Vulkan::Engine::draw_dynamic() -> void
-{
-  const auto cmd {get_current_frame().main_command_buffer};
-  VkCommandBufferBeginInfo cmdBeginInfo {Vulkan::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)};
-  
-  vkBeginCommandBuffer(cmd, &cmdBeginInfo);
-  vkEndCommandBuffer(get_current_frame().main_command_buffer);
-}
-
 auto Vulkan::Engine::init_descriptors() -> void 
 {
   std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
