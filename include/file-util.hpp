@@ -16,7 +16,7 @@ inline constexpr auto get_shader_file_path =
   return (shader_path != nullptr)
              ? std::format("{}/{}", shader_path, shader_name)
              : std::string{
-                   std::format("{}/{}",
+                   std::format("{}/shaders/{}",
                                std::filesystem::canonical("/proc/self/exe")
                                    .parent_path()
                                    .c_str(),

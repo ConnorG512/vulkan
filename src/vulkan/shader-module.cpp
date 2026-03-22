@@ -17,14 +17,13 @@ Vulkan::ShaderModule::~ShaderModule()
   vkDestroyShaderModule(device_, shader_module_, nullptr);
 }
 
-
 auto Vulkan::ShaderModule::load_shader(const std::string &path)
     -> VkShaderModule {
   assert(!path.empty());
 
   std::ifstream file(path, std::ios::ate | std::ios::binary);
   if (!file.is_open()) {
-    std::println("failed to open file!");
+    std::println("failed to open file: \"{}\".", path);
     return {};
   }
 
