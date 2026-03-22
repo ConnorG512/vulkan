@@ -48,6 +48,8 @@ namespace Vulkan
       
       VkPipeline gradientPipeLine {};
       VkPipelineLayout gradientPipeLineLayout {};
+      VkPipeline trianglePipeLine {};
+      VkPipelineLayout trianglePipeLineLayout {};
       
       VkFence immFence{};
       VkCommandBuffer immCommandBuffer{};
@@ -73,6 +75,7 @@ namespace Vulkan
       auto init_sync_structures() -> void;
       auto cleanup() -> void;
       auto draw() -> void;
+      auto draw_dynamic() -> void;
       auto draw_background(VkCommandBuffer cmd) -> void;
 
       auto immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) -> void;
@@ -83,6 +86,7 @@ namespace Vulkan
       auto init_descriptors() -> void;
       auto init_pipelines() -> void;
       auto init_background_pipelines() -> void;
+      auto init_foreground_pipelines() -> void;
 
       auto init_imgui(Window::Instance& application_window) -> void;
       auto draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) -> void;
