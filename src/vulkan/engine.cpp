@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <format>
 #include <print>
-#include <ranges>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
