@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <format>
 #include <print>
+#include <ranges>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -425,6 +426,37 @@ auto Vulkan::Engine::draw() -> void
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
   
   draw_background(cmd);
+
+  Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+  VkRenderingAttachmentInfo colorAttachment {
+    .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+    .imageView = drawImage.imageView,
+    .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+  };
+  VkRenderingInfo renderingInfo{
+    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+    .renderArea = {{0,0}, {drawExtent.width, drawExtent.height}},
+    .layerCount = 1,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachment,
+  };
+  vkCmdBeginRendering(cmd, &renderingInfo);
+  vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, trianglePipeLine);
+  VkViewport viewport{
+    .x = 0,
+    .y = 0,
+    .width = static_cast<float>(drawExtent.width),
+    .height = static_cast<float>(drawExtent.height),
+    .minDepth = 0.0f,
+    .maxDepth = 1.0f,
+  };
+  vkCmdSetViewport(cmd, 0, 1, &viewport);
+  VkRect2D scissor{{0,0}, {drawExtent.width, drawExtent.height}};
+  vkCmdSetScissor(cmd, 0,1, &scissor);
+  vkCmdDraw(cmd, 3,1,0,0);
+  vkCmdEndRendering(cmd);
 
   Vulkan::Util::transition_image(cmd, drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
   Vulkan::Util::transition_image(cmd, swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
