@@ -97,76 +97,11 @@ auto Vulkan::Engine::init_foreground_pipelines() -> void
       .module = triangleFragment.get_vk_module(),
       .pName = "main", 
       })};
-  const auto pipelineStagesArray = std::to_array({triangleVertexStage, triangleFragmentStage});
+  auto pipelineStagesArray = std::to_array({triangleVertexStage, triangleFragmentStage});
   
-  VkPipelineMultisampleStateCreateInfo multisampleState {
-    Pipeline::multisample_state_create_info()
-  };
-  VkPipelineColorBlendAttachmentState colorBlendAttachmentState {
-    .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
-  };
-  VkPipelineColorBlendStateCreateInfo colorBlendStateCreateInfo{
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-    .attachmentCount = 1,
-    .pAttachments = &colorBlendAttachmentState,
-  };
-  VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-  };
-  VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-    .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-  };
-  VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-    .polygonMode = VK_POLYGON_MODE_FILL,
-    .lineWidth = 1.0f,
-  };
-
-  const auto dynamicStates = std::to_array({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});
-  VkPipelineDynamicStateCreateInfo dynamicStateStateCreateInfo{
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-    .dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
-    .pDynamicStates = dynamicStates.data(),
-  };
-  VkPipelineLayout pipelineLayout{};
-  VkPipelineRenderingCreateInfo renderingCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
-    .colorAttachmentCount = 1,
-    .pColorAttachmentFormats = &swapchain_image_format,
-  };
-  VkPipelineViewportStateCreateInfo viewportStateCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-    .viewportCount = 1,
-    .scissorCount = 1,
-  };
-  
-  VkPipelineLayoutCreateInfo layoutInfo{
-    Pipeline::create_pipeline_layout_info()
-  };
-  
-  std::println("Pipeline layout result: {}.", static_cast<std::uint32_t>(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &trianglePipeLineLayout)));
-
-  VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo {
-    .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-    .pNext = &renderingCreateInfo,
-    .flags = 0,
-    .stageCount = 2, 
-    .pStages = pipelineStagesArray.data(),
-    .pVertexInputState = &vertexInputStateCreateInfo,
-    .pInputAssemblyState = &inputAssemblyStateCreateInfo,
-    .pTessellationState = nullptr,
-    .pViewportState = &viewportStateCreateInfo,
-    .pRasterizationState = &rasterizationStateCreateInfo,
-    .pMultisampleState = &multisampleState,
-    .pDepthStencilState = nullptr,
-    .pColorBlendState = &colorBlendStateCreateInfo,
-    .pDynamicState = &dynamicStateStateCreateInfo,
-    .layout = trianglePipeLineLayout,
-  };
-  
-  const auto pipeline_res {vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &trianglePipeLine)};
-  std::println("Pipeline result: {}", static_cast<std::uint32_t>(pipeline_res));
+  const auto pipeline_result {Pipeline::init_graphics_pipeline(pipelineStagesArray, device, trianglePipeLine, trianglePipeLineLayout, swapchain_image_format)};
+  if(!pipeline_result.has_value())
+    std::println("Pipeline init error {}.", pipeline_result.error());
 }
 
 auto Vulkan::Engine::init_vulkan(Window::Instance& application_window) -> void 

@@ -1,5 +1,7 @@
 #include "vulkan/pipeline.hpp"
+
 #include <cassert>
+#include <expected>
 #include <vulkan/vulkan_core.h>
 
 auto Vulkan::Pipeline::create_compute_pipeline(VkShaderModule computeShader,
@@ -179,4 +181,84 @@ auto Vulkan::Pipeline::graphics_pipeline_create_info(
       graphicsPipelineSettings.createInfoCount,
       graphicsPipelineSettings.pCreateInfos,
       graphicsPipelineSettings.pAllocator, graphicsPipelineSettings.pPipeline);
+}
+
+auto Vulkan::Pipeline::init_graphics_pipeline(
+    std::span<VkPipelineShaderStageCreateInfo> shaderStages, VkDevice device,
+    VkPipeline &pipeline, VkPipelineLayout pipelineLayout, VkFormat &colorAttachment)
+    -> std::expected<void, std::int32_t> {
+  
+  assert(!shaderStages.empty());
+
+  VkPipelineInputAssemblyStateCreateInfo inputAssembly{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+  };
+  
+  VkPipelineVertexInputStateCreateInfo vertexInputState{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+  };
+  
+  VkPipelineMultisampleStateCreateInfo multisampleState{
+      multisample_state_create_info()};
+
+  VkPipelineViewportStateCreateInfo viewportState{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+      .viewportCount = 1,
+      .scissorCount = 1,
+  };
+  VkPipelineRasterizationStateCreateInfo rasterizationState{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+      .polygonMode = VK_POLYGON_MODE_FILL,
+      .lineWidth = 1.0f,
+  };
+  VkPipelineColorBlendAttachmentState colorBlendAttachmentState{
+      .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+  };
+  VkPipelineColorBlendStateCreateInfo colorBlendState{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+      .attachmentCount = 1,
+      .pAttachments = &colorBlendAttachmentState,
+  };
+  
+  const auto dynamicStates =
+      std::to_array({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});
+  
+  VkPipelineDynamicStateCreateInfo dynamicState{
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+      .dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
+      .pDynamicStates = dynamicStates.data(),
+  };
+
+  VkPipelineRenderingCreateInfo renderingCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+    .colorAttachmentCount = 1,
+    .pColorAttachmentFormats = &colorAttachment,
+  };
+  
+  const VkGraphicsPipelineCreateInfo pipelineInfo{
+      .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+      .pNext = &renderingCreateInfo,
+      .flags = 0,
+      .stageCount = static_cast<std::uint32_t>(shaderStages.size()),
+      .pStages = shaderStages.data(),
+      .pVertexInputState = &vertexInputState,
+      .pInputAssemblyState = &inputAssembly,
+      .pTessellationState = nullptr,
+      .pViewportState = &viewportState,
+      .pRasterizationState = &rasterizationState,
+      .pMultisampleState = &multisampleState,
+      .pDepthStencilState = nullptr,
+      .pColorBlendState = &colorBlendState,
+      .pDynamicState = &dynamicState,
+      .layout = pipelineLayout,
+  };
+
+  const auto pipeline_res{vkCreateGraphicsPipelines(
+      device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline)};
+  if (pipeline_res != VK_SUCCESS)
+    return std::unexpected<std::uint32_t>(static_cast<std::int32_t>(pipeline_res));
+  else
+    return {};
 }

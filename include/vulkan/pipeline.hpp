@@ -2,7 +2,9 @@
 
 #include <array>
 #include <cstdint>
+#include <expected>
 #include <vulkan/vulkan_core.h>
+#include <span>
 
 namespace Vulkan::Pipeline {
 [[nodiscard]] auto create_compute_pipeline(VkShaderModule computeShader,
@@ -120,4 +122,10 @@ struct CreateGraphicsPipelineSettings {
 [[nodiscard]] auto create_graphics_pipelines(
     const CreateGraphicsPipelineSettings &graphicsPipelineSettings = {})
     -> VkResult;
+
+auto init_graphics_pipeline(
+    std::span<VkPipelineShaderStageCreateInfo> shaderStages, VkDevice device,
+    VkPipeline &pipeline, VkPipelineLayout pipelineLayout, VkFormat &colorAttachment)
+    -> std::expected<void, std::int32_t>;
+
 } // namespace Vulkan::Pipeline
