@@ -180,3 +180,8 @@ auto Vulkan::Pipeline::graphics_pipeline_create_info(
       graphicsPipelineSettings.pCreateInfos,
       graphicsPipelineSettings.pAllocator, graphicsPipelineSettings.pPipeline);
 }
+
+auto Vulkan::Pipeline::init_graphics_pipeline() -> std::expected<void, VkResult>
+{
+
+}

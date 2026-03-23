@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <expected>
 #include <vulkan/vulkan_core.h>
 
 namespace Vulkan::Pipeline {
@@ -120,4 +121,6 @@ struct CreateGraphicsPipelineSettings {
 [[nodiscard]] auto create_graphics_pipelines(
     const CreateGraphicsPipelineSettings &graphicsPipelineSettings = {})
     -> VkResult;
+
+auto init_graphics_pipeline() -> std::expected<void, VkResult>;
 } // namespace Vulkan::Pipeline
