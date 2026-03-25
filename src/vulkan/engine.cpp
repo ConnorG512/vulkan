@@ -338,7 +338,7 @@ auto Vulkan::Engine::draw() -> void
   
   const auto fenceResult {Vulkan::Draw::wait_for_fences(device, {&get_current_frame().render_fence, 1})};
   if(!fenceResult.has_value())
-    std::println("Failed to wait for fence, error {}.", fenceResult.error());
+    throw std::runtime_error(std::format("{}", fenceResult.error()));
 
   get_current_frame().deletion_queue.flush();
 
