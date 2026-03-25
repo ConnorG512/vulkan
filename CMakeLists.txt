@@ -18,6 +18,7 @@ add_executable(${EXECUTABLE_NAME}
   
   src/vulkan/deletion-queue.cpp
   src/vulkan/descriptors.cpp
+  src/vulkan/drawing.cpp
   src/vulkan/engine.cpp
   src/vulkan/error-handler.cpp
   src/vulkan/initializer.cpp
