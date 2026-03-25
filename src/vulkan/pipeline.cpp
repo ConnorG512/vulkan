@@ -53,7 +53,9 @@ auto Vulkan::Pipeline::rendering_create_info(const PipelineRenderingInfoSettings
 auto Vulkan::Pipeline::create_shader_stage_info(
     const ShaderStageSettings &shaderStageInfo) noexcept
     -> VkPipelineShaderStageCreateInfo {
-  
+    
+    assert(shaderStageInfo.pName != nullptr);
+
     const VkPipelineShaderStageCreateInfo result {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
       .pNext = shaderStageInfo.pNext,
