@@ -9,6 +9,7 @@
 #include "vulkan/error-handler.hpp"
 #include "vulkan/pipeline.hpp"
 #include "vulkan/shader-module.hpp"
+#include "vulkan/drawing.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl3.h"
@@ -333,15 +334,12 @@ auto Vulkan::Engine::draw_background(VkCommandBuffer cmd) -> void
 
 auto Vulkan::Engine::draw() -> void
 {
-  constexpr auto FENCE_COUNT {1};
   constexpr auto ONE_SECOND {1000000000};
   
-  if(const auto vk_res = Vulkan::Error::vk_check(vkWaitForFences(device, FENCE_COUNT, &get_current_frame().render_fence, true, ONE_SECOND)); !vk_res.has_value())
-    throw std::runtime_error(vk_res.error());
-    
-  if(const auto vk_res = Vulkan::Error::vk_check(vkResetFences(device, FENCE_COUNT, &get_current_frame().render_fence)); !vk_res.has_value())
-    throw std::runtime_error(vk_res.error());
-  
+  const auto fenceResult {Vulkan::Draw::wait_for_fences(device, {&get_current_frame().render_fence, 1})};
+  if(!fenceResult.has_value())
+    std::println("Failed to wait for fence, error {}.", fenceResult.error());
+
   get_current_frame().deletion_queue.flush();
 
   uint32_t swapchainImageIndex {};
