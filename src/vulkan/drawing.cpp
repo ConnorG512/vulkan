@@ -6,7 +6,7 @@ auto Vulkan::Draw::wait_for_fences(VkDevice device, std::span<const VkFence> pFe
 {
   assert(device != VK_NULL_HANDLE);
   assert(!pFences.empty());
-  assert(!pFences.data());
+  assert(pFences.data());
 
   const auto waitResult {vkWaitForFences(device, pFences.size(), pFences.data(), true, 1000000000)};
   if(waitResult != VK_SUCCESS)
